@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scorched Earth 1980's Style</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>Scorched Earth - Two Player Battle</h1>
+
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <div id="controls">
+    <h3>Controls</h3>
+    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+      <div style="text-align: left;">
+        <strong>Player 1 (Green)</strong><br>
+        A/D - Aim turret<br>
+        W - Charge & Fire<br>
+        S - Switch weapon
+      </div>
+      <div style="text-align: left;">
+        <strong>Player 2 (Red)</strong><br>
+        ←/→ - Aim turret<br>
+        SPACE - Charge & Fire<br>
+        TAB - Switch weapon
+      </div>
+    </div>
+    <p style="text-align: center; margin-top: 15px;">
+      <strong>Weapons:</strong> Regular • Cluster • Bouncing • Heavy<br>
+      <strong>Cluster Bomb:</strong> Press fire button again mid-flight to split!<br>
+      <strong>R</strong> - Restart Game
+    </p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

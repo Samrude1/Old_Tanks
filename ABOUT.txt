@@ -1,0 +1,18 @@
+Scorched Earth is a shareware artillery video game. It was released for MS-DOS in 1991, originally written by Wendell Hicken using Borland C++ and Turbo Assembler.[2] Players control tanks to do turn-based battle in two-dimensional terrain, adjusting the angle and power of each tank turret before each shot. Scorched Earth adds destructible terrain and a variety of extreme weapons to the artillery formula.
+
+It was inspired in the ZX Spectrum game "Tanx" created by Paul Stanley and published in 1983 as a type-in in the book "Sixty Programs for the Sinclair ZX Spectrum".
+
+Gameplay
+Scorched Earth is one of many games in the genre of "turn-based artillery games". Such games are among the earliest computer games, with versions existing for mainframes with only teletype output. Scorched Earth, with a plethora of weapon types and power-ups, is considered the modern archetype of its format.
+
+The game has a wide variety of customization options from gravity, wind, money, meteorite showers, and a similarly large pool of different payloads, allowing for a large amount of entirely different situations.
+
+The AI players can display text messages before firing, such as "I shall smash your ugly tank!" and before dying, such as "Join the army, see the world they said".
+
+
+A game in progress
+The weapons range from small missile rounds to MIRV warheads to high-yield nuclear weapons. All weapons can be upgraded with tracers which allow the player to more accurately adjust the trajectory on their next turn. In addition to conventional warheads, there is also ordnance such as napalm, wildly bouncing bombs, and earth weapons - allowing the player to dump dirt on other tanks or to remove ground from beneath them. A tank which is covered with dirt has to shoot itself free and may get damaged in the process; one which falls from too high a level may be destroyed. A variety of utilities, such as deflector shields, recharge batteries, and tank parachutes, make it much harder to score a kill with a single hit even with the more bizarre and advanced weapons, adding another dimension to the game's tactics.
+
+Projectiles can be manipulated in their flight-path by wind, shields and guidance systems, and sometimes have partially random effects. Walls may have a bouncing effect, wrap-around, or no effect, as may the ceiling. As the player advances in the game, they can afford more and more powerful weapons, as can their opponents.
+
+The game can be played against up to nine other human players and/or computer-controlled ones. A broad range of differently skilled player types is available. If the player-controlled tanks are destroyed before the others, the AI-controlled players continue to battle each other, turning Scorched Earth into a zero-player game.

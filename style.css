@@ -1,0 +1,53 @@
+body {
+  font-family: "Courier New", monospace; /* Kirjasintyyppi, joka muistuttaa vanhaa tietokonetta */
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  color: #fff;
+  font-size: 1.5em; /* Pienempi fontti */
+  margin-bottom: 10px;
+}
+
+#gameCanvas {
+  border: 2px solid #fff;
+  background-color: #000;
+  display: block;
+  margin: 0 auto 20px auto;
+  cursor: crosshair; /* Vanhan pelin tuntu */
+}
+
+#controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+#controls label,
+#controls input,
+#controls button {
+  color: #fff;
+  background-color: #000;
+  border: 1px solid #fff;
+  padding: 5px;
+  font-size: 1em;
+}
+
+#controls button:hover {
+  background-color: #333;
+  cursor: pointer;
+}
+
+#windDisplay {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #fff;
+  /* Voit halutessasi korostaa tätä esim. reunuksella */
+  /* border: 1px solid #fff; */
+  padding: 5px;
+}
