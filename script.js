@@ -45,6 +45,36 @@ const ProjectileType = {
     explosionRadius: 50,
     color: "red",
   },
+  // Phase 3 weapons
+  DIGGER: {
+    name: "Digger",
+    explosionRadius: 35,
+    color: "brown",
+    penetrationDepth: 80, // depth before exploding
+  },
+  NAPALM: {
+    name: "Napalm",
+    explosionRadius: 25,
+    color: "orangered",
+    fireDuration: 4000, // ms
+    fireRadius: 30,
+  },
+  LASER: {
+    name: "Laser",
+    damage: 2,
+    color: "magenta",
+  },
+  MIRV: {
+    name: "MIRV",
+    explosionRadius: 20,
+    color: "purple",
+    childCount: 3,
+    childRadius: 10,
+  },
+  TELEPORTER: {
+    name: "Teleporter",
+    color: "cyan",
+  },
 };
 
 // ===== GAME VARIABLES =====
@@ -77,6 +107,8 @@ let projectiles = [];
 let explosions = [];
 let windParticles = [];
 let particles = []; // Explosion debris, smoke, etc.
+let napalmZones = []; // Lingering fire zones
+let lasers = []; // Active laser beams
 
 // Power charging
 let chargePower = 0;
@@ -90,6 +122,9 @@ const heldKeys = new Set();
 let lastFrameTime = Date.now();
 
 // ===== SOUND SYSTEM (PLACEHOLDERS) =====
+function playLaserSound() { console.log("🔊 LASER"); }
+function playNapalmSound() { console.log("🔊 NAPALM"); }
+function playTeleportSound() { console.log("🔊 TELEPORT"); }
 // Replace these with actual sound implementations when ready
 function playShootSound() {
   // TODO: Play shooting sound effect
@@ -150,6 +185,37 @@ class WindParticle {
 }
 
 // ===== PARTICLE SYSTEM =====
+class NapalmZone {
+  constructor(x, y, radius, duration) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.duration = duration / 1000; // seconds
+    this.timer = 0;
+    this.isDead = false;
+  }
+  update(dt) {
+    this.timer += dt;
+    if (this.timer >= this.duration) {
+      this.isDead = true;
+      return;
+    }
+    // Damage tanks inside zone
+    [player1Tank, player2Tank].forEach(tank => {
+      const dx = tank.x - this.x;
+      const dy = tank.y - this.y;
+      if (Math.hypot(dx, dy) < this.radius) {
+        tank.health = Math.max(0, tank.health - 1);
+      }
+    });
+  }
+  draw() {
+    ctx.fillStyle = "rgba(255,100,0,0.3)";
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
 class Particle {
   constructor(x, y, vx, vy, type = "debris") {
     this.x = x;
@@ -557,27 +623,47 @@ function fireProjectile() {
   const weaponType = activeTank.selectedWeapon;
 
   // Calculate launch position and velocity
-  const turretEndX =
-    activeTank.x + Math.cos(activeTank.turretAngle) * TURRET_LENGTH;
-  const turretEndY =
-    activeTank.y + Math.sin(activeTank.turretAngle) * TURRET_LENGTH;
+  const turretEndX = activeTank.x + Math.cos(activeTank.turretAngle) * TURRET_LENGTH;
+  const turretEndY = activeTank.y + Math.sin(activeTank.turretAngle) * TURRET_LENGTH;
 
   // Power scales to MAX_LAUNCH_SPEED constant (adjust at top of file)
   const power = chargePower * MAX_LAUNCH_SPEED;
   const vx = Math.cos(activeTank.turretAngle) * power;
   const vy = Math.sin(activeTank.turretAngle) * power;
 
-  projectiles.push({
+  // Weapon‑specific initialization
+  const proj = {
     x: turretEndX,
     y: turretEndY,
-    canSplit: weaponType === ProjectileType.CLUSTER, // Track if cluster can still split
+    canSplit: weaponType === ProjectileType.CLUSTER,
     vx: vx,
     vy: vy,
     type: weaponType,
     owner: currentPlayer,
     trail: [],
     bounces: weaponType === ProjectileType.BOUNCING ? weaponType.bounces : 0,
-  });
+  };
+
+  // Digger specific
+  if (weaponType === ProjectileType.DIGGER) {
+    proj.penetrationRemaining = weaponType.penetrationDepth;
+    proj.penetrated = false;
+  }
+
+  // Laser is instant – handle immediately
+  if (weaponType === ProjectileType.LASER) {
+    // Raycast up to a max range
+    const maxRange = 300;
+    const endX = turretEndX + Math.cos(activeTank.turretAngle) * maxRange;
+    const endY = turretEndY + Math.sin(activeTank.turretAngle) * maxRange;
+    // Simple hit test against opposing tank
+    const targetTank = currentPlayer === 1 ? player2Tank : player1Tank;
+    gameState = GameState.RESOLVE;
+    chargePower = 0;
+    return;
+  }
+
+  projectiles.push(proj);
 
   // Muzzle flash particles
   createMuzzleFlash(turretEndX, turretEndY, activeTank.turretAngle);
@@ -592,58 +678,120 @@ function updateProjectiles(deltaTime) {
   for (let i = projectiles.length - 1; i >= 0; i--) {
     let p = projectiles[i];
 
+    // Debug check for NaN
+    if (isNaN(p.x) || isNaN(p.y)) {
+      console.error("Projectile NaN detected!", p);
+      projectiles.splice(i, 1);
+      continue;
+    }
+
     // Store trail
     p.trail.push({ x: p.x, y: p.y });
     if (p.trail.length > 20) p.trail.shift();
 
-    // Apply physics (matches reference: gravity and wind are multiplied by deltaTime)
+    // Apply physics
     p.vy += GRAVITY * deltaTime;
     p.vx += wind.x * deltaTime;
     p.vy += wind.y * deltaTime;
 
-    // Update position (with visual speed multiplier for faster/slower rendering)
+    // Update position
     p.x += p.vx * deltaTime * PROJECTILE_SPEED_MULTIPLIER;
     p.y += p.vy * deltaTime * PROJECTILE_SPEED_MULTIPLIER;
 
-    // Check collision with terrain
-    const roundedX = Math.floor(p.x);
-    const roundedY = Math.floor(p.y);
-
-    if (
-      roundedX >= 0 &&
-      roundedX < SCREEN_WIDTH &&
-      roundedY >= 0 &&
-      roundedY < SCREEN_HEIGHT
-    ) {
-      if (p.y >= terrain[roundedX]) {
-        // Hit terrain
-        if (p.type === ProjectileType.BOUNCING && p.bounces > 0) {
-          // Bounce
-          playGroundHitSound(); // Bounce sound
-          p.vy = -p.vy * 0.6;
-          p.vx = p.vx * 0.8;
-          p.y = terrain[roundedX] - 1;
-          p.bounces--;
-        } else if (p.type === ProjectileType.CLUSTER && !p.canSplit) {
-          // Cluster already split, explode normally
-          playGroundHitSound();
-          explosions.push(new Explosion(p.x, p.y, p.type.childRadius));
-          projectiles.splice(i, 1);
-        } else {
-          // Normal explosion
-          playGroundHitSound(); // Ground impact sound
+    // Digger handling – allow penetration
+    if (p.type === ProjectileType.DIGGER) {
+      if (!p.penetrated && p.y >= terrain[Math.floor(p.x)]) {
+        // Start penetrating terrain
+        p.penetrated = true;
+        p.vy = 0; // stop vertical motion while penetrating
+        p.vx = 0;
+      }
+      if (p.penetrated) {
+        p.penetrationRemaining -= Math.abs(p.vy) * deltaTime * PROJECTILE_SPEED_MULTIPLIER;
+        if (p.penetrationRemaining <= 0) {
+          // Explode underground
           explosions.push(new Explosion(p.x, p.y, p.type.explosionRadius));
           projectiles.splice(i, 1);
+          continue;
         }
+        // While penetrating, don't check normal collision
+        continue;
       }
-    } else if (p.x < 0 || p.x > SCREEN_WIDTH) {
-      // Out of bounds horizontally - just remove
-      projectiles.splice(i, 1);
-    } else if (p.y >= SCREEN_HEIGHT) {
-      // Hit bottom of screen - explode
+    }
+
+    // Collision with terrain (ground)
+    if (p.y >= terrain[Math.floor(p.x)]) {
+      if (p.type === ProjectileType.BOUNCING && p.bounces > 0) {
+        // Bounce
+        playGroundHitSound(); // Bounce sound
+        p.vy = -p.vy * 0.6;
+        p.vx = p.vx * 0.8;
+        p.y = terrain[Math.floor(p.x)] - 1;
+        p.bounces--;
+        continue;
+      }
+      if (p.type === ProjectileType.CLUSTER && !p.canSplit) {
+        // Cluster already split, explode normally
+        playGroundHitSound();
+        explosions.push(new Explosion(p.x, p.y, p.type.childRadius));
+        projectiles.splice(i, 1);
+        continue;
+      }
+      if (p.type === ProjectileType.NAPALM) {
+        // Create napalm zone
+        napalmZones.push(new NapalmZone(p.x, p.y, p.type.fireRadius, p.type.fireDuration));
+        playNapalmSound();
+        projectiles.splice(i, 1);
+        continue;
+      }
+      if (p.type === ProjectileType.TELEPORTER) {
+        // Teleport owning tank
+        const tank = p.owner === 1 ? player1Tank : player2Tank;
+        tank.x = p.x;
+        tank.y = p.y - TANK_HEIGHT; // place tank on top of ground
+        tank.turretAngle = -Math.PI / 2;
+        playTeleportSound();
+        projectiles.splice(i, 1);
+        continue;
+      }
+      if (p.type === ProjectileType.MIRV) {
+        // Spawn child projectiles similar to cluster
+        const childCount = p.type.childCount || 3;
+        const spreadAngle = Math.PI * 0.3;
+        const velocityAngle = Math.atan2(p.vy, p.vx);
+        for (let j = 0; j < childCount; j++) {
+          const offset = (j - (childCount - 1) / 2) * (spreadAngle / (childCount - 1));
+          const angle = velocityAngle + offset;
+          const speed = 40;
+          const childVx = Math.cos(angle) * speed;
+          const childVy = Math.sin(angle) * speed;
+          projectiles.push({
+            x: p.x,
+            y: p.y,
+            vx: childVx,
+            vy: childVy,
+            type: ProjectileType.REGULAR,
+            owner: p.owner,
+            trail: [],
+            bounces: 0,
+            canSplit: false,
+          });
+        }
+        explosions.push(new Explosion(p.x, p.y, p.type.explosionRadius));
+        projectiles.splice(i, 1);
+        continue;
+      }
+      // Normal explosion for other types
       playGroundHitSound();
-      explosions.push(new Explosion(p.x, SCREEN_HEIGHT - 10, p.type.explosionRadius));
+      explosions.push(new Explosion(p.x, p.y, p.type.explosionRadius));
       projectiles.splice(i, 1);
+      continue;
+    }
+
+    // Out of bounds horizontally
+    if (p.x < 0 || p.x > SCREEN_WIDTH) {
+      projectiles.splice(i, 1);
+      continue;
     }
   }
 }
@@ -679,9 +827,6 @@ function splitClusterBomb(projectile) {
       canSplit: false, // Children cannot split again
     });
   }
-
-  // Create small flash at split point (no terrain damage)
-  explosions.push(new Explosion(projectile.x, projectile.y, 5));
 }
 
 // ===== EXPLOSION UPDATES =====
@@ -723,6 +868,19 @@ function draw() {
   // Draw explosions
   explosions.forEach((e) => e.draw());
 
+  // Draw particles
+  particles.forEach(p => p.draw());
+  // Draw napalm zones
+  napalmZones.forEach(z => z.draw());
+  // Draw laser beams
+  lasers.forEach(l => {
+    ctx.strokeStyle = "rgba(255,0,255,0.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(l.x1, l.y1);
+    ctx.lineTo(l.x2, l.y2);
+    ctx.stroke();
+  });
   // Draw UI
   drawUI();
 }
@@ -785,32 +943,23 @@ function drawUI() {
 
   // Health bars
   ctx.textAlign = "left";
-  ctx.fillText(
-    `P1 Lives: ${"♥".repeat(Math.max(0, player1Tank.health))}`,
-    10,
-    20
-  );
+  ctx.fillText(`P1 Lives: ${"♥".repeat(Math.max(0, player1Tank.health))}`, 10, 20);
 
   ctx.textAlign = "right";
-  ctx.fillText(
-    `P2 Lives: ${"♥".repeat(Math.max(0, player2Tank.health))}`,
-    SCREEN_WIDTH - 10,
-    20
-  );
+  ctx.fillText(`P2 Lives: ${"♥".repeat(Math.max(0, player2Tank.health))}`, SCREEN_WIDTH - 10, 20);
+
+  // Current weapon display
+  const activeTank = currentPlayer === 1 ? player1Tank : player2Tank;
+  ctx.textAlign = "center";
+  ctx.fillText(`Weapon: ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 40);
 
   // Wind display
   ctx.textAlign = "center";
-  const windSpeed = Math.sqrt(wind.x * wind.x + wind.y * wind.y);
-  const windText =
-    wind.x > 0
-      ? `Wind: ${windSpeed.toFixed(1)} →`
-      : `Wind: ← ${windSpeed.toFixed(1)}`;
-  ctx.fillText(windText, SCREEN_WIDTH / 2, 20);
+  const windSpeed = Math.abs(wind.x * 100).toFixed(0);
+  const windDir = wind.x > 0 ? "→" : "←";
+  ctx.fillText(`Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 60);
 
-  // Current weapon
-  const activeTank = currentPlayer === 1 ? player1Tank : player2Tank;
-  ctx.textAlign = "left";
-  ctx.fillText(`Weapon: ${activeTank.selectedWeapon.name}`, 10, 40);
+
 
   // Power bar during charging
   if (gameState === GameState.POWER) {
@@ -901,6 +1050,30 @@ function update() {
 
   // Update wind particles
   windParticles.forEach((p) => p.update(deltaTime));
+
+  // Update particles (debris, smoke, etc.)
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update(deltaTime);
+    if (particles[i].isDead) {
+      particles.splice(i, 1);
+    }
+  }
+
+  // Update napalm zones
+  for (let i = napalmZones.length - 1; i >= 0; i--) {
+    napalmZones[i].update(deltaTime);
+    if (napalmZones[i].isDead) {
+      napalmZones.splice(i, 1);
+    }
+  }
+
+  // Update laser beams
+  for (let i = lasers.length - 1; i >= 0; i--) {
+    lasers[i].timer -= deltaTime;
+    if (lasers[i].timer <= 0) {
+      lasers.splice(i, 1);
+    }
+  }
 
   // State-specific updates
   switch (gameState) {
@@ -1024,11 +1197,16 @@ function cycleWeapon(tank) {
     ProjectileType.CLUSTER,
     ProjectileType.BOUNCING,
     ProjectileType.HEAVY,
+    ProjectileType.DIGGER,
+    ProjectileType.NAPALM,
+    ProjectileType.LASER,
+    ProjectileType.MIRV,
+    ProjectileType.TELEPORTER,
   ];
-  const currentIndex = weapons.indexOf(tank.selectedWeapon);
-  const nextIndex = (currentIndex + 1) % weapons.length;
-  tank.selectedWeapon = weapons[nextIndex];
+  const idx = weapons.indexOf(tank.selectedWeapon);
+  tank.selectedWeapon = weapons[(idx + 1) % weapons.length];
 }
+
 
 // ===== GAME INITIALIZATION =====
 function initializeGame() {
@@ -1050,17 +1228,21 @@ function initializeGame() {
   chargePower = 0;
 
   // Reset weapons
-  player1Tank.selectedWeapon = ProjectileType.REGULAR;
   player2Tank.selectedWeapon = ProjectileType.REGULAR;
 
+  console.log("Game Initialized. Wind particles:", windParticles.length);
   lastFrameTime = Date.now();
 }
 
 // ===== GAME LOOP =====
 function gameLoop() {
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
+  try {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  } catch (e) {
+    console.error("Game Loop Error:", e);
+  }
 }
 
 // ===== START GAME =====
