@@ -117,52 +117,31 @@ const heldKeys = new Set();
 let lastFrameTime = Date.now();
 
 // ===== SOUND SYSTEM (PLACEHOLDERS) =====
-function playLaserSound() {
-  new Audio("sounds/laser.wav").play();
-  console.log("🔊 LASER");
-}
-function playNapalmSound() {
-  new Audio("sounds/napalm.wav").play();
-  console.log("🔊 NAPALM");
-}
-function playTeleportSound() {
-  new Audio("sounds/teleport.wav").play();
-  console.log("🔊 TELEPORT");
-}
-
+function playLaserSound() { console.log("🔊 LASER"); }
+function playNapalmSound() { console.log("🔊 NAPALM"); }
+function playTeleportSound() { console.log("🔊 TELEPORT"); }
+// Replace these with actual sound implementations when ready
 function playShootSound() {
   // TODO: Play shooting sound effect
-  new Audio("sounds/shoot.wav").play();
+  // Example: new Audio('sounds/shoot.mp3').play();
   console.log("🔊 SHOOT");
 }
 
 function playGroundHitSound() {
   // TODO: Play ground impact sound effect
-  new Audio("sounds/ground_hit.wav").play();
+  // Example: new Audio('sounds/ground_hit.mp3').play();
   console.log("🔊 GROUND HIT");
 }
 
 function playTankHitSound() {
   // TODO: Play tank hit sound effect
-  new Audio("sounds/tank_hit.wav").play();
+  // Example: new Audio('sounds/tank_hit.mp3').play();
   console.log("🔊 TANK HIT");
 }
 
 function playTankDestroySound() {
   // TODO: Play tank destruction sound effect
-  new Audio("sounds/tank_destroy.wav").play();
-  console.log("🔊 TANK DESTROYED");
-}
-
-function playClusterSplitSound() {
-  // TODO: Play tank destruction sound effect
-  new Audio("sounds/cluster_split.wav").play();
-  console.log("🔊 TANK DESTROYED");
-}
-
-function playBounceSound() {
-  // TODO: Play tank destruction sound effect
-  new Audio("sounds/bounce.wav").play();
+  // Example: new Audio('sounds/tank_destroy.mp3').play();
   console.log("🔊 TANK DESTROYED");
 }
 
@@ -220,8 +199,7 @@ class NapalmZone {
 
     // Spawn fire particles
     this.spawnTimer += dt;
-    if (this.spawnTimer > 0.05) {
-      // Spawn every 50ms
+    if (this.spawnTimer > 0.05) { // Spawn every 50ms
       this.spawnTimer = 0;
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.random() * this.radius;
@@ -229,31 +207,26 @@ class NapalmZone {
       const py = this.y + Math.sin(angle) * dist;
 
       // Fire particle
-      particles.push(
-        new Particle(px, py, 0, -20 - Math.random() * 30, "spark")
-      );
+      particles.push(new Particle(px, py, 0, -20 - Math.random() * 30, "spark"));
       // Smoke particle
       if (Math.random() > 0.5) {
-        particles.push(
-          new Particle(px, py, 0, -10 - Math.random() * 20, "smoke")
-        );
+        particles.push(new Particle(px, py, 0, -10 - Math.random() * 20, "smoke"));
       }
     }
 
     // Damage tanks inside zone
-    [player1Tank, player2Tank].forEach((tank) => {
+    [player1Tank, player2Tank].forEach(tank => {
       const dx = tank.x - this.x;
       const dy = tank.y - this.y;
       if (Math.hypot(dx, dy) < this.radius) {
         // Damage every 0.5 seconds roughly (handled by frame rate for now, simplified)
-        if (Math.random() < dt * 2) {
-          // Chance to damage based on dt
+        if (Math.random() < dt * 2) { // Chance to damage based on dt
           tank.health = Math.max(0, tank.health - 1);
           if (tank.health === 0) {
             playTankDestroySound();
             checkGameOver();
           } else {
-            //playTankHitSound();
+            playTankHitSound();
           }
         }
       }
@@ -276,15 +249,12 @@ class Particle {
     this.type = type; // 'debris', 'smoke', 'dust', 'spark'
     this.lifetime = 0;
     this.maxLifetime = type === "smoke" ? 1.5 : type === "spark" ? 0.3 : 1.0;
-    this.size =
-      type === "smoke" ? 3 + Math.random() * 4 : 2 + Math.random() * 3;
+    this.size = type === "smoke" ? 3 + Math.random() * 4 : 2 + Math.random() * 3;
     this.isDead = false;
 
     // Type-specific properties
     if (type === "debris") {
-      this.color = `rgb(${100 + Math.random() * 50}, ${
-        80 + Math.random() * 40
-      }, ${40 + Math.random() * 20})`;
+      this.color = `rgb(${100 + Math.random() * 50}, ${80 + Math.random() * 40}, ${40 + Math.random() * 20})`;
       this.rotation = Math.random() * Math.PI * 2;
       this.rotationSpeed = (Math.random() - 0.5) * 5;
     } else if (type === "smoke") {
@@ -292,9 +262,7 @@ class Particle {
     } else if (type === "dust") {
       this.color = `rgba(150, 130, 100, ${0.4 + Math.random() * 0.3})`;
     } else if (type === "spark") {
-      this.color = `rgb(255, ${200 + Math.random() * 55}, ${
-        100 + Math.random() * 100
-      })`;
+      this.color = `rgb(255, ${200 + Math.random() * 55}, ${100 + Math.random() * 100})`;
     }
   }
 
@@ -328,7 +296,7 @@ class Particle {
   }
 
   draw() {
-    const alpha = 1 - this.lifetime / this.maxLifetime;
+    const alpha = 1 - (this.lifetime / this.maxLifetime);
 
     ctx.save();
     ctx.globalAlpha = alpha;
@@ -409,6 +377,7 @@ function createMuzzleFlash(x, y, angle) {
     particles.push(new Particle(x, y, vx, vy, "smoke"));
   }
 }
+
 
 // ===== EXPLOSION CLASS =====
 class Explosion {
@@ -491,31 +460,10 @@ class Explosion {
     // Animated explosion: grows then shrinks
     const animRadius = this.radius * Math.sin(this.progress * Math.PI);
 
-    ctx.save();
-    // Outer glow
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = "rgba(255, 100, 0, 0.8)";
-
-    // Outer ring (orange)
-    ctx.fillStyle = `rgba(255, 100, 0, ${0.6 * (1 - this.progress)})`;
+    ctx.fillStyle = "rgba(255, 180, 60, 0.8)";
     ctx.beginPath();
     ctx.arc(this.x, this.y, animRadius, 0, Math.PI * 2);
     ctx.fill();
-
-    // Middle ring (yellow)
-    ctx.fillStyle = `rgba(255, 200, 0, ${0.8 * (1 - this.progress)})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, animRadius * 0.7, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Inner core (white)
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = `rgba(255, 255, 255, ${0.9 * (1 - this.progress)})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, animRadius * 0.4, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
   }
 }
 
@@ -526,10 +474,10 @@ function generateTerrain() {
   // Multi-octave terrain generation for more variation
   const baseHeight = 400; // Base terrain level
   const octaves = [
-    { amplitude: 80, frequency: 0.01 }, // Large hills
-    { amplitude: 40, frequency: 0.03 }, // Medium features
-    { amplitude: 20, frequency: 0.08 }, // Small details
-    { amplitude: 10, frequency: 0.15 }, // Fine noise
+    { amplitude: 80, frequency: 0.01 },  // Large hills
+    { amplitude: 40, frequency: 0.03 },  // Medium features
+    { amplitude: 20, frequency: 0.08 },  // Small details
+    { amplitude: 10, frequency: 0.15 }   // Fine noise
   ];
 
   // Random seed for this terrain
@@ -543,7 +491,7 @@ function generateTerrain() {
       center: Math.random() * SCREEN_WIDTH,
       width: 50 + Math.random() * 150,
       height: (Math.random() - 0.5) * 150, // Can be positive (hill) or negative (valley)
-      type: Math.random() > 0.5 ? "smooth" : "plateau",
+      type: Math.random() > 0.5 ? 'smooth' : 'plateau'
     });
   }
 
@@ -560,15 +508,13 @@ function generateTerrain() {
     for (let feature of features) {
       const distance = Math.abs(x - feature.center);
       if (distance < feature.width) {
-        const influence = 1 - distance / feature.width;
-        if (feature.type === "smooth") {
+        const influence = 1 - (distance / feature.width);
+        if (feature.type === 'smooth') {
           // Smooth hill or valley
           height += feature.height * Math.pow(influence, 2);
         } else {
           // Plateau
-          height +=
-            feature.height *
-            (influence > 0.7 ? 1 : Math.pow(influence / 0.7, 3));
+          height += feature.height * (influence > 0.7 ? 1 : Math.pow(influence / 0.7, 3));
         }
       }
     }
@@ -705,10 +651,8 @@ function fireProjectile() {
   const weaponType = activeTank.selectedWeapon;
 
   // Calculate launch position and velocity
-  const turretEndX =
-    activeTank.x + Math.cos(activeTank.turretAngle) * TURRET_LENGTH;
-  const turretEndY =
-    activeTank.y + Math.sin(activeTank.turretAngle) * TURRET_LENGTH;
+  const turretEndX = activeTank.x + Math.cos(activeTank.turretAngle) * TURRET_LENGTH;
+  const turretEndY = activeTank.y + Math.sin(activeTank.turretAngle) * TURRET_LENGTH;
 
   // Power scales to MAX_LAUNCH_SPEED constant (adjust at top of file)
   const power = chargePower * MAX_LAUNCH_SPEED;
@@ -792,11 +736,10 @@ function updateProjectiles(deltaTime) {
         const spreadAngle = Math.PI * 0.4; // Wider cone
 
         // Play split sound (reuse cluster sound for now)
-        playClusterSplitSound();
+        // playClusterSplitSound(); 
 
         for (let j = 0; j < childCount; j++) {
-          const angleOffset =
-            (j - (childCount - 1) / 2) * (spreadAngle / (childCount - 1));
+          const angleOffset = (j - (childCount - 1) / 2) * (spreadAngle / (childCount - 1));
           // Velocity is mostly down but with spread
           const baseSpeed = 150;
           const angle = Math.PI / 2 + angleOffset; // Downwards + offset
@@ -831,13 +774,11 @@ function updateProjectiles(deltaTime) {
         p.vx = 0;
       }
       if (p.penetrated) {
-        p.penetrationRemaining -=
-          Math.abs(p.vy) * deltaTime * PROJECTILE_SPEED_MULTIPLIER;
+        p.penetrationRemaining -= Math.abs(p.vy) * deltaTime * PROJECTILE_SPEED_MULTIPLIER;
         if (p.penetrationRemaining <= 0) {
           // Explode underground
           explosions.push(new Explosion(p.x, p.y, p.type.explosionRadius));
           projectiles.splice(i, 1);
-          playGroundHitSound();
           continue;
         }
         // While penetrating, don't check normal collision
@@ -849,7 +790,7 @@ function updateProjectiles(deltaTime) {
     if (p.y >= terrain[Math.floor(p.x)]) {
       if (p.type === ProjectileType.BOUNCING && p.bounces > 0) {
         // Bounce
-        playBounceSound(); // Bounce sound
+        playGroundHitSound(); // Bounce sound
         p.vy = -p.vy * 0.6;
         p.vx = p.vx * 0.8;
         p.y = terrain[Math.floor(p.x)] - 1;
@@ -865,9 +806,7 @@ function updateProjectiles(deltaTime) {
       }
       if (p.type === ProjectileType.NAPALM) {
         // Create napalm zone
-        napalmZones.push(
-          new NapalmZone(p.x, p.y, p.type.fireRadius, p.type.fireDuration)
-        );
+        napalmZones.push(new NapalmZone(p.x, p.y, p.type.fireRadius, p.type.fireDuration));
         playNapalmSound();
         projectiles.splice(i, 1);
         continue;
@@ -905,24 +844,20 @@ function updateProjectiles(deltaTime) {
 }
 
 function splitClusterBomb(projectile) {
-  playClusterSplitSound();
   const childCount = projectile.type.childCount;
   const spreadAngle = Math.PI * 0.4; // Wider spread
 
   for (let i = 0; i < childCount; i++) {
     // Calculate spread angle from current velocity direction
     const velocityAngle = Math.atan2(projectile.vy, projectile.vx);
-    const offset =
-      (i - (childCount - 1) / 2) * (spreadAngle / (childCount - 1));
+    const offset = (i - (childCount - 1) / 2) * (spreadAngle / (childCount - 1));
     const angle = velocityAngle + offset;
 
     // Inherit parent velocity with some spread
     const inheritFactor = 0.7; // 70% of parent velocity
     const spreadSpeed = 30;
-    const childVx =
-      projectile.vx * inheritFactor + Math.cos(angle) * spreadSpeed;
-    const childVy =
-      projectile.vy * inheritFactor + Math.sin(angle) * spreadSpeed;
+    const childVx = projectile.vx * inheritFactor + Math.cos(angle) * spreadSpeed;
+    const childVy = projectile.vy * inheritFactor + Math.sin(angle) * spreadSpeed;
 
     projectiles.push({
       x: projectile.x,
@@ -953,39 +888,22 @@ function updateExplosions(deltaTime) {
 
 // ===== DRAWING =====
 function draw() {
-  // Clear screen with gradient sky
-  const skyGradient = ctx.createLinearGradient(0, 0, 0, SCREEN_HEIGHT);
-  skyGradient.addColorStop(0, "#87CEEB");
-  skyGradient.addColorStop(0.6, "#E0F6FF");
-  skyGradient.addColorStop(1, "#D2B48C");
-  ctx.fillStyle = skyGradient;
+  // Clear screen
+  ctx.fillStyle = "rgb(21, 80, 120)"; // Sky blue
   ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // Draw wind particles
   windParticles.forEach((p) => p.draw());
 
-  // Draw terrain with gradient and shadow
-  ctx.save();
+  // Draw terrain
   ctx.beginPath();
   ctx.moveTo(0, SCREEN_HEIGHT);
   for (let x = 0; x < SCREEN_WIDTH; x++) {
     ctx.lineTo(x, terrain[x]);
   }
   ctx.lineTo(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-  // Terrain gradient (grass to dirt)
-  const terrainGradient = ctx.createLinearGradient(0, 300, 0, SCREEN_HEIGHT);
-  terrainGradient.addColorStop(0, "#8BC34A");
-  terrainGradient.addColorStop(0.3, "#7CB342");
-  terrainGradient.addColorStop(1, "#6D4C41");
-  ctx.fillStyle = terrainGradient;
+  ctx.fillStyle = "rgb(30, 180, 60)";
   ctx.fill();
-
-  // Terrain outline/shadow
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
 
   // Draw tanks
   drawTank(player1Tank);
@@ -998,9 +916,9 @@ function draw() {
   explosions.forEach((e) => e.draw());
 
   // Draw particles
-  particles.forEach((p) => p.draw());
+  particles.forEach(p => p.draw());
   // Draw napalm zones
-  napalmZones.forEach((z) => z.draw());
+  napalmZones.forEach(z => z.draw());
   // Draw UI
   drawUI();
 }
@@ -1011,281 +929,129 @@ function drawTank(tank) {
   ctx.save();
   ctx.translate(tank.x, tank.y);
 
-  // Shadow
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.fillRect(-TANK_WIDTH / 2 + 2, 2, TANK_WIDTH, TANK_HEIGHT);
-
-  // Tank body with gradient
-  const bodyGradient = ctx.createLinearGradient(
-    -TANK_WIDTH / 2,
-    0,
-    TANK_WIDTH / 2,
-    TANK_HEIGHT
-  );
-  if (tank.color === "lime") {
-    bodyGradient.addColorStop(0, "#76FF03");
-    bodyGradient.addColorStop(1, "#64DD17");
-  } else {
-    bodyGradient.addColorStop(0, "#FF5252");
-    bodyGradient.addColorStop(1, "#D32F2F");
-  }
-  ctx.fillStyle = bodyGradient;
+  // Draw body
+  ctx.fillStyle = tank.color;
   ctx.fillRect(-TANK_WIDTH / 2, 0, TANK_WIDTH, TANK_HEIGHT);
 
-  // Thick dark border for tank body
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+  // Draw turret
+  ctx.strokeStyle = tank.color;
   ctx.lineWidth = 2;
-  ctx.strokeRect(-TANK_WIDTH / 2, 0, TANK_WIDTH, TANK_HEIGHT);
-
-  // Highlight
-  ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.fillRect(-TANK_WIDTH / 2 + 2, 1, TANK_WIDTH - 4, 3);
-
-  // Draw turret (no glow)
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
   const turretEndX = Math.cos(tank.turretAngle) * TURRET_LENGTH;
   const turretEndY = Math.sin(tank.turretAngle) * TURRET_LENGTH;
-
-  // Dark border for turret
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
   ctx.lineTo(turretEndX, turretEndY);
   ctx.stroke();
-
-  // Turret color on top
-  ctx.strokeStyle = tank.color;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(turretEndX, turretEndY);
-  ctx.stroke();
-
-  // Turret tip with dark border
-  ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
-  ctx.beginPath();
-  ctx.arc(turretEndX, turretEndY, 3, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = tank.color === "lime" ? "#FFEB3B" : "#FFC107";
-  ctx.beginPath();
-  ctx.arc(turretEndX, turretEndY, 2, 0, Math.PI * 2);
-  ctx.fill();
 
   ctx.restore();
 }
 
 function drawProjectile(p) {
-  // Draw trail with gradient
-  if (p.trail.length > 1) {
-    for (let i = 1; i < p.trail.length; i++) {
-      const alpha = i / p.trail.length;
-      ctx.strokeStyle = `rgba(255, 200, 100, ${alpha * 0.6})`;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(p.trail[i - 1].x, p.trail[i - 1].y);
-      ctx.lineTo(p.trail[i].x, p.trail[i].y);
-      ctx.stroke();
-    }
+  // Draw trail
+  ctx.strokeStyle = "rgba(100, 100, 255, 0.5)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < p.trail.length; i++) {
+    if (i === 0) ctx.moveTo(p.trail[i].x, p.trail[i].y);
+    else ctx.lineTo(p.trail[i].x, p.trail[i].y);
   }
+  ctx.stroke();
 
-  // Draw projectile with glow
-  ctx.save();
-  ctx.shadowBlur = 10;
-  ctx.shadowColor = p.type.color || "yellow";
+  // Draw projectile
   ctx.fillStyle = p.type.color || "yellow";
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+  ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
   ctx.fill();
-
-  // Inner bright core
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "white";
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
 
   // Off-screen indicator
   if (p.y < 0) {
-    ctx.fillStyle = "#FF5252";
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = "#FF5252";
+    ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.moveTo(p.x, 0);
     ctx.lineTo(p.x + 5, 10);
     ctx.lineTo(p.x - 5, 10);
     ctx.closePath();
     ctx.fill();
-    ctx.shadowBlur = 0;
   }
 }
 
 function drawUI() {
-  ctx.font = "bold 16px 'Nunito', sans-serif";
+  ctx.fillStyle = "white";
+  ctx.font = "14px monospace";
 
-  // Player 1 Health (left side)
+  // Health bars
   ctx.textAlign = "left";
-  ctx.shadowBlur = 3;
-  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-  ctx.fillStyle = "#76FF03";
-  ctx.fillText(`P1`, 10, 25);
+  ctx.fillText(`P1 Lives: ${"♥".repeat(Math.max(0, player1Tank.health))}`, 10, 20);
 
-  for (let i = 0; i < 3; i++) {
-    if (i < player1Tank.health) {
-      ctx.fillStyle = "#FF1744";
-      ctx.fillText("♥", 45 + i * 20, 25);
-    } else {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillText("♡", 45 + i * 20, 25);
-    }
-  }
-
-  // Player 2 Health (right side)
   ctx.textAlign = "right";
-  ctx.fillStyle = "#FF5252";
-  ctx.fillText(`P2`, SCREEN_WIDTH - 10, 25);
+  ctx.fillText(`P2 Lives: ${"♥".repeat(Math.max(0, player2Tank.health))}`, SCREEN_WIDTH - 10, 20);
 
-  for (let i = 0; i < 3; i++) {
-    if (i < player2Tank.health) {
-      ctx.fillStyle = "#FF1744";
-      ctx.fillText("♥", SCREEN_WIDTH - 50 - (2 - i) * 20, 25);
-    } else {
-      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillText("♡", SCREEN_WIDTH - 50 - (2 - i) * 20, 25);
-    }
-  }
-
-  // Current weapon display (center top)
+  // Current weapon display
   const activeTank = currentPlayer === 1 ? player1Tank : player2Tank;
   ctx.textAlign = "center";
-  ctx.font = "bold 14px 'Nunito', sans-serif";
+  ctx.fillText(`Weapon: ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 40);
 
-  // Weapon background
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.fillRect(SCREEN_WIDTH / 2 - 70, 35, 140, 25);
-
-  ctx.fillStyle = "#FFC107";
-  ctx.fillText(`🎯 ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 52);
-
-  ctx.shadowBlur = 0;
-
-  // Wind display (center, below weapon)
+  // Wind display
   ctx.textAlign = "center";
-  ctx.font = "bold 14px 'Nunito', sans-serif";
-
-  // Wind background
-  ctx.fillStyle = "rgba(102, 126, 234, 0.6)";
-  ctx.fillRect(SCREEN_WIDTH / 2 - 70, 65, 140, 25);
-
   const windSpeed = Math.abs(wind.x * 100).toFixed(0);
-  const windDir = wind.x > 0 ? "→" : wind.x < 0 ? "←" : "•";
-  ctx.fillStyle = "#FFFFFF";
-  ctx.shadowBlur = 2;
-  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-  ctx.fillText(`💨 Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 82);
+  const windDir = wind.x > 0 ? "→" : "←";
+  ctx.fillText(`Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 60);
 
-  ctx.shadowBlur = 0;
+
 
   // Power bar during charging
   if (gameState === GameState.POWER) {
-    const barWidth = SCREEN_WIDTH * 0.6;
-    const barHeight = 30;
+    const barWidth = SCREEN_WIDTH * 0.8;
+    const barHeight = 20;
     const barX = (SCREEN_WIDTH - barWidth) / 2;
-    const barY = SCREEN_HEIGHT - 80;
-
-    // Background shadow
-    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-    ctx.fillRect(barX + 2, barY + 2, barWidth, barHeight);
+    const barY = 10;
 
     // Background
-    ctx.fillStyle = "rgba(50, 50, 50, 0.8)";
-    ctx.fillRect(barX, barY, barWidth, barHeight);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.strokeStyle = "rgba(255, 160, 60, 0.8)";
     ctx.lineWidth = 2;
     ctx.strokeRect(barX, barY, barWidth, barHeight);
 
-    // Fill with gradient
-    const powerGradient = ctx.createLinearGradient(
-      barX,
-      barY,
-      barX + barWidth,
-      barY
-    );
-    powerGradient.addColorStop(0, "#76FF03");
-    powerGradient.addColorStop(0.5, "#FFEB3B");
-    powerGradient.addColorStop(1, "#FF5252");
-    ctx.fillStyle = powerGradient;
+    // Fill
+    ctx.fillStyle = "rgba(255, 160, 60, 0.8)";
     ctx.fillRect(barX, barY, barWidth * chargePower, barHeight);
-
-    // Power text
-    ctx.fillStyle = "white";
-    ctx.font = "bold 14px 'Nunito', sans-serif";
-    ctx.textAlign = "center";
-    ctx.shadowBlur = 2;
-    ctx.shadowColor = "black";
-    ctx.fillText(
-      `POWER: ${Math.floor(chargePower * 100)}%`,
-      SCREEN_WIDTH / 2,
-      barY - 8
-    );
-    ctx.shadowBlur = 0;
   }
 
   // Turn indicator
   if (gameState === GameState.AIM || gameState === GameState.POWER) {
     ctx.textAlign = "center";
-    ctx.font = "bold 18px 'Fredoka One', cursive";
-    ctx.shadowBlur = 4;
-    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-    ctx.fillStyle = currentPlayer === 1 ? "#76FF03" : "#FF5252";
+    ctx.fillStyle = currentPlayer === 1 ? player1Tank.color : player2Tank.color;
+    ctx.font = "16px monospace";
     ctx.fillText(
       `Player ${currentPlayer}'s Turn`,
       SCREEN_WIDTH / 2,
-      SCREEN_HEIGHT - 15
+      SCREEN_HEIGHT - 20
     );
-    ctx.shadowBlur = 0;
   }
 
   // Game over screen
   if (gameState === GameState.GAME_OVER) {
-    // Dark overlay
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    // Winner text
+    ctx.fillStyle = "white";
+    ctx.font = "32px monospace";
     ctx.textAlign = "center";
-    ctx.font = "bold 48px 'Fredoka One', cursive";
 
     let winner = "";
-    let winnerColor = "";
-    if (player1Tank.health > 0 && player2Tank.health <= 0) {
-      winner = "🎉 Player 1 Wins! 🎉";
-      winnerColor = "#76FF03";
-    } else if (player2Tank.health > 0 && player1Tank.health <= 0) {
-      winner = "🎉 Player 2 Wins! 🎉";
-      winnerColor = "#FF5252";
-    } else {
-      winner = "It's a Draw!";
-      winnerColor = "#FFC107";
-    }
+    if (player1Tank.health > 0 && player2Tank.health <= 0)
+      winner = "Player 1 Wins!";
+    else if (player2Tank.health > 0 && player1Tank.health <= 0)
+      winner = "Player 2 Wins!";
+    else winner = "It's a Draw!";
 
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = winnerColor;
-    ctx.fillStyle = winnerColor;
-    ctx.fillText(winner, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30);
+    ctx.fillText(winner, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 20);
 
-    // Restart instruction
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.font = "bold 24px 'Nunito', sans-serif";
-    ctx.fillStyle = "white";
+    ctx.font = "16px monospace";
     ctx.fillText(
       "Press R to Restart",
       SCREEN_WIDTH / 2,
-      SCREEN_HEIGHT / 2 + 40
+      SCREEN_HEIGHT / 2 + 20
     );
-    ctx.shadowBlur = 0;
   }
 
   // Controls hint
@@ -1475,6 +1241,7 @@ function cycleWeapon(tank) {
   const idx = weapons.indexOf(tank.selectedWeapon);
   tank.selectedWeapon = weapons[(idx + 1) % weapons.length];
 }
+
 
 // ===== GAME INITIALIZATION =====
 function initializeGame() {

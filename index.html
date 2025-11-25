@@ -1,41 +1,63 @@
 <!DOCTYPE html>
-<html lang="fi">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scorched Earth 1980's Style</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#87CEEB" />
+  <meta name="description" content="Modern mobile-style tank battle game inspired by Angry Birds and Clash of Clans" />
+  <title>Tank Battle Arena 🎮</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <h1>Scorched Earth - Two Player Battle</h1>
+  <div class="game-container">
+    <h1>Tank Battle Arena</h1>
 
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-  <div id="controls">
-    <h3>Controls</h3>
-    <div style="display: flex; justify-content: space-around; margin-top: 10px;">
-      <div style="text-align: left;">
-        <strong>Player 1 (Green)</strong><br>
-        A/D - Aim turret<br>
-        W - Charge & Fire<br>
-        S - Switch weapon
+    <div id="controls">
+      <h3>⚔️ Battle Controls</h3>
+
+      <div class="controls-grid">
+        <div class="player-controls player1">
+          <strong>🟢 Player 1 (Green)</strong>
+          <div class="control-line">🎯 A/D - Aim turret</div>
+          <div class="control-line">🚀 W - Charge & Fire</div>
+          <div class="control-line">🔄 S - Switch weapon</div>
+        </div>
+
+        <div class="player-controls player2">
+          <strong>🔴 Player 2 (Red)</strong>
+          <div class="control-line">🎯 ←/→ - Aim turret</div>
+          <div class="control-line">🚀 SPACE - Charge & Fire</div>
+          <div class="control-line">🔄 TAB - Switch weapon</div>
+        </div>
       </div>
-      <div style="text-align: left;">
-        <strong>Player 2 (Red)</strong><br>
-        ←/→ - Aim turret<br>
-        SPACE - Charge & Fire<br>
-        TAB - Switch weapon
+
+      <div class="weapons-info">
+        <div style="margin-bottom: 10px;">
+          <strong>💣 Weapons Arsenal:</strong> Regular • Cluster • Bouncing • Heavy
+        </div>
+        <div style="font-size: 0.9rem;">
+          <strong>⭐ Pro Tip:</strong> Press fire button again mid-flight to split cluster bombs!
+        </div>
+      </div>
+
+      <div class="restart-hint">
+        🔄 Press R to Restart Game
       </div>
     </div>
-    <p style="text-align: center; margin-top: 15px;">
-      <strong>Weapons:</strong> Regular • Cluster • Bouncing • Heavy<br>
-      <strong>Cluster Bomb:</strong> Press fire button again mid-flight to split!<br>
-      <strong>R</strong> - Restart Game
-    </p>
   </div>
 
+  <script>
+    // Prevent space bar from scrolling the page
+    window.addEventListener('keydown', function (e) {
+      if (e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+      }
+    });
+  </script>
   <script src="script.js"></script>
 </body>
 
