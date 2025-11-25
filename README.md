@@ -2,7 +2,7 @@
 
 A modern recreation of the classic Scorched Earth artillery game with enhanced physics, multiple weapon types, and two-player local multiplayer.
 
-![Tanks Game](screenshot.png?v1)
+![Tanks Game](screenshot.png?v2)
 
 ## Features
 
