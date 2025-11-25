@@ -38,7 +38,7 @@ const ProjectileType = {
     name: "Bouncing",
     explosionRadius: 25,
     color: "cyan",
-    bounces: 2,
+    bounces: 1, // Default is 2
   },
   HEAVY: {
     name: "Heavy",
@@ -195,7 +195,7 @@ class WindParticle {
   }
 
   draw() {
-    ctx.fillStyle = "rgba(170, 200, 220, 0.5)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; // Dark for visibility against bright sky
     ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 1, 1);
   }
 }

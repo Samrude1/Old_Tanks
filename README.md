@@ -121,17 +121,6 @@ tanks/
 └── README.md           # This file
 ```
 
-### Sound Placeholders
-
-The game includes placeholder functions for sound effects:
-
-- `playShootSound()` - Firing projectile
-- `playGroundHitSound()` - Terrain impact
-- `playTankHitSound()` - Tank damage
-- `playTankDestroySound()` - Tank destruction
-
-Replace these with actual audio files to add sound.
-
 ## Credits
 
 Inspired by the classic DOS game "Scorched Earth" (1991) by Wendell Hicken.
@@ -144,9 +133,6 @@ MIT License - Feel free to use and modify!
 
 See `enhancement_plan.md` for upcoming features including:
 
-- Improved cluster bomb mechanics
-- Particle effects system
-- New weapon types (Digger, Napalm, Laser, MIRV, Teleporter)
 - Camera shake and visual polish
 - Limited ammo system
 - Power-ups and strategic features
