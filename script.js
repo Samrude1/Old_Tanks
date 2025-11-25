@@ -56,15 +56,15 @@ const ProjectileType = {
     name: "Napalm",
     explosionRadius: 25,
     color: "orangered",
-    fireDuration: 6000, // ms
+    fireDuration: 2000, // ms - reduced for even shorter burning time
     fireRadius: 60,
   },
   MIRV: {
     name: "MIRV",
-    explosionRadius: 20,
+    explosionRadius: 25, // increased from 20 for more effectiveness
     color: "purple",
-    childCount: 3,
-    childRadius: 10,
+    childCount: 5, // increased from 3 for more warheads
+    childRadius: 15, // increased from 10
   },
   TELEPORTER: {
     name: "Teleporter",
@@ -282,9 +282,8 @@ class Particle {
 
     // Type-specific properties
     if (type === "debris") {
-      this.color = `rgb(${100 + Math.random() * 50}, ${
-        80 + Math.random() * 40
-      }, ${40 + Math.random() * 20})`;
+      this.color = `rgb(${100 + Math.random() * 50}, ${80 + Math.random() * 40
+        }, ${40 + Math.random() * 20})`;
       this.rotation = Math.random() * Math.PI * 2;
       this.rotationSpeed = (Math.random() - 0.5) * 5;
     } else if (type === "smoke") {
@@ -292,9 +291,8 @@ class Particle {
     } else if (type === "dust") {
       this.color = `rgba(150, 130, 100, ${0.4 + Math.random() * 0.3})`;
     } else if (type === "spark") {
-      this.color = `rgb(255, ${200 + Math.random() * 55}, ${
-        100 + Math.random() * 100
-      })`;
+      this.color = `rgb(255, ${200 + Math.random() * 55}, ${100 + Math.random() * 100
+        })`;
     }
   }
 
@@ -1122,68 +1120,110 @@ function drawProjectile(p) {
 }
 
 function drawUI() {
-  ctx.font = "bold 16px 'Nunito', sans-serif";
-
   // Player 1 Health (left side)
   ctx.textAlign = "left";
+  ctx.font = "bold 20px 'Nunito', sans-serif";
+
+  // Add text stroke for better contrast
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.lineWidth = 4;
+  ctx.strokeText(`P1`, 10, 28);
+
   ctx.shadowBlur = 3;
   ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
   ctx.fillStyle = "#76FF03";
-  ctx.fillText(`P1`, 10, 25);
+  ctx.fillText(`P1`, 10, 28);
 
+  ctx.font = "bold 22px 'Nunito', sans-serif";
   for (let i = 0; i < 3; i++) {
     if (i < player1Tank.health) {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+      ctx.lineWidth = 3;
+      ctx.strokeText("♥", 50 + i * 24, 28);
       ctx.fillStyle = "#FF1744";
-      ctx.fillText("♥", 45 + i * 20, 25);
+      ctx.fillText("♥", 50 + i * 24, 28);
     } else {
       ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillText("♡", 45 + i * 20, 25);
+      ctx.fillText("♡", 50 + i * 24, 28);
     }
   }
 
   // Player 2 Health (right side)
   ctx.textAlign = "right";
-  ctx.fillStyle = "#FF5252";
-  ctx.fillText(`P2`, SCREEN_WIDTH - 10, 25);
+  ctx.font = "bold 20px 'Nunito', sans-serif";
 
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.lineWidth = 4;
+  ctx.strokeText(`P2`, SCREEN_WIDTH - 10, 28);
+
+  ctx.fillStyle = "#FF5252";
+  ctx.fillText(`P2`, SCREEN_WIDTH - 10, 28);
+
+  ctx.font = "bold 22px 'Nunito', sans-serif";
   for (let i = 0; i < 3; i++) {
     if (i < player2Tank.health) {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+      ctx.lineWidth = 3;
+      ctx.strokeText("♥", SCREEN_WIDTH - 55 - (2 - i) * 24, 28);
       ctx.fillStyle = "#FF1744";
-      ctx.fillText("♥", SCREEN_WIDTH - 50 - (2 - i) * 20, 25);
+      ctx.fillText("♥", SCREEN_WIDTH - 55 - (2 - i) * 24, 28);
     } else {
       ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.fillText("♡", SCREEN_WIDTH - 50 - (2 - i) * 20, 25);
+      ctx.fillText("♡", SCREEN_WIDTH - 55 - (2 - i) * 24, 28);
     }
   }
 
   // Current weapon display (center top)
   const activeTank = currentPlayer === 1 ? player1Tank : player2Tank;
   ctx.textAlign = "center";
-  ctx.font = "bold 14px 'Nunito', sans-serif";
+  ctx.font = "bold 16px 'Nunito', sans-serif";
 
-  // Weapon background
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.fillRect(SCREEN_WIDTH / 2 - 70, 35, 140, 25);
+  // Weapon background with darker border
+  ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+  ctx.fillRect(SCREEN_WIDTH / 2 - 80, 35, 160, 30);
+
+  // Add border to weapon card
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(SCREEN_WIDTH / 2 - 80, 35, 160, 30);
+
+  // Weapon text with stroke
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.lineWidth = 3;
+  ctx.strokeText(`🎯 ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 55);
 
   ctx.fillStyle = "#FFC107";
-  ctx.fillText(`🎯 ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 52);
+  ctx.shadowBlur = 2;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+  ctx.fillText(`🎯 ${activeTank.selectedWeapon.name}`, SCREEN_WIDTH / 2, 55);
 
   ctx.shadowBlur = 0;
 
   // Wind display (center, below weapon)
   ctx.textAlign = "center";
-  ctx.font = "bold 14px 'Nunito', sans-serif";
+  ctx.font = "bold 16px 'Nunito', sans-serif";
 
-  // Wind background
-  ctx.fillStyle = "rgba(102, 126, 234, 0.6)";
-  ctx.fillRect(SCREEN_WIDTH / 2 - 70, 65, 140, 25);
+  // Wind background with darker border
+  ctx.fillStyle = "rgba(102, 126, 234, 0.7)";
+  ctx.fillRect(SCREEN_WIDTH / 2 - 80, 70, 160, 30);
+
+  // Add border to wind card
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(SCREEN_WIDTH / 2 - 80, 70, 160, 30);
 
   const windSpeed = Math.abs(wind.x * 100).toFixed(0);
   const windDir = wind.x > 0 ? "→" : wind.x < 0 ? "←" : "•";
+
+  // Wind text with stroke
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.lineWidth = 3;
+  ctx.strokeText(`💨 Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 90);
+
   ctx.fillStyle = "#FFFFFF";
   ctx.shadowBlur = 2;
   ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
-  ctx.fillText(`💨 Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 82);
+  ctx.fillText(`💨 Wind: ${windDir} ${windSpeed}`, SCREEN_WIDTH / 2, 90);
 
   ctx.shadowBlur = 0;
 
@@ -1192,7 +1232,7 @@ function drawUI() {
     const barWidth = SCREEN_WIDTH * 0.6;
     const barHeight = 30;
     const barX = (SCREEN_WIDTH - barWidth) / 2;
-    const barY = SCREEN_HEIGHT - 80;
+    const barY = SCREEN_HEIGHT - 110; // Moved up to avoid overlap with turn message
 
     // Background shadow
     ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
@@ -1218,10 +1258,19 @@ function drawUI() {
     ctx.fillStyle = powerGradient;
     ctx.fillRect(barX, barY, barWidth * chargePower, barHeight);
 
-    // Power text
-    ctx.fillStyle = "white";
-    ctx.font = "bold 14px 'Nunito', sans-serif";
+    // Power text with stroke
+    ctx.font = "bold 16px 'Nunito', sans-serif";
     ctx.textAlign = "center";
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    ctx.lineWidth = 4;
+    ctx.strokeText(
+      `POWER: ${Math.floor(chargePower * 100)}%`,
+      SCREEN_WIDTH / 2,
+      barY - 8
+    );
+
+    ctx.fillStyle = "white";
     ctx.shadowBlur = 2;
     ctx.shadowColor = "black";
     ctx.fillText(
@@ -1235,14 +1284,24 @@ function drawUI() {
   // Turn indicator
   if (gameState === GameState.AIM || gameState === GameState.POWER) {
     ctx.textAlign = "center";
-    ctx.font = "bold 18px 'Fredoka One', cursive";
+    ctx.font = "bold 22px 'Fredoka One', cursive";
+
+    // Add text stroke for better contrast
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    ctx.lineWidth = 5;
+    ctx.strokeText(
+      `Player ${currentPlayer}'s Turn`,
+      SCREEN_WIDTH / 2,
+      SCREEN_HEIGHT - 35
+    );
+
     ctx.shadowBlur = 4;
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
     ctx.fillStyle = currentPlayer === 1 ? "#76FF03" : "#FF5252";
     ctx.fillText(
       `Player ${currentPlayer}'s Turn`,
       SCREEN_WIDTH / 2,
-      SCREEN_HEIGHT - 15
+      SCREEN_HEIGHT - 35
     );
     ctx.shadowBlur = 0;
   }
@@ -1255,7 +1314,7 @@ function drawUI() {
 
     // Winner text
     ctx.textAlign = "center";
-    ctx.font = "bold 48px 'Fredoka One', cursive";
+    ctx.font = "bold 52px 'Fredoka One', cursive";
 
     let winner = "";
     let winnerColor = "";
@@ -1270,15 +1329,29 @@ function drawUI() {
       winnerColor = "#FFC107";
     }
 
+    // Winner text stroke
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    ctx.lineWidth = 6;
+    ctx.strokeText(winner, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30);
+
     ctx.shadowBlur = 10;
     ctx.shadowColor = winnerColor;
     ctx.fillStyle = winnerColor;
     ctx.fillText(winner, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 30);
 
     // Restart instruction
+    ctx.font = "bold 26px 'Nunito', sans-serif";
+
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    ctx.lineWidth = 5;
+    ctx.strokeText(
+      "Press R to Restart",
+      SCREEN_WIDTH / 2,
+      SCREEN_HEIGHT / 2 + 40
+    );
+
     ctx.shadowBlur = 5;
     ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.font = "bold 24px 'Nunito', sans-serif";
     ctx.fillStyle = "white";
     ctx.fillText(
       "Press R to Restart",
@@ -1290,17 +1363,34 @@ function drawUI() {
 
   // Controls hint
   if (gameState === GameState.AIM) {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = "12px monospace";
+    ctx.font = "14px 'Nunito', sans-serif";
     ctx.textAlign = "center";
 
     if (currentPlayer === 1) {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(
+        "P1: A/D=Aim | W=Fire | S=Weapon",
+        SCREEN_WIDTH / 2,
+        SCREEN_HEIGHT - 5
+      );
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
       ctx.fillText(
         "P1: A/D=Aim | W=Fire | S=Weapon",
         SCREEN_WIDTH / 2,
         SCREEN_HEIGHT - 5
       );
     } else {
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(
+        "P2: ←/→=Aim | SPACE=Fire | TAB=Weapon",
+        SCREEN_WIDTH / 2,
+        SCREEN_HEIGHT - 5
+      );
+
+      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
       ctx.fillText(
         "P2: ←/→=Aim | SPACE=Fire | TAB=Weapon",
         SCREEN_WIDTH / 2,
@@ -1309,6 +1399,7 @@ function drawUI() {
     }
   }
 }
+
 
 // ===== GAME UPDATE =====
 function update() {

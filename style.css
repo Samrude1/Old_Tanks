@@ -108,14 +108,15 @@ h1::after {
     0 8px 32px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   max-width: 800px;
+  border: 3px solid rgba(255, 255, 255, 0.6);
 }
 
 #controls h3 {
   font-family: 'Fredoka One', cursive;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #ff6b35;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 0px rgba(255, 107, 53, 0.2);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4), 2px 2px 0px rgba(255, 107, 53, 0.2);
 }
 
 .controls-grid {
@@ -134,6 +135,7 @@ h1::after {
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   text-align: left;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid rgba(0, 0, 0, 0.4);
 }
 
 .player-controls:hover {
@@ -154,10 +156,10 @@ h1::after {
 .player-controls strong {
   display: block;
   font-family: 'Fredoka One', cursive;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   color: #fff;
   margin-bottom: 12px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5), 1px 1px 0px rgba(0, 0, 0, 0.8);
 }
 
 .player-controls br {
@@ -168,8 +170,8 @@ h1::after {
   color: #fff;
   font-weight: 700;
   margin: 8px 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 0.95rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4), 0px 0px 1px rgba(0, 0, 0, 0.8);
+  font-size: 1.05rem;
 }
 
 .weapons-info {
@@ -182,6 +184,7 @@ h1::after {
   margin-top: 20px;
   color: #fff;
   transition: transform 0.3s ease;
+  border: 2px solid rgba(0, 0, 0, 0.4);
 }
 
 .weapons-info:hover {
@@ -190,8 +193,8 @@ h1::after {
 
 .weapons-info strong {
   font-family: 'Fredoka One', cursive;
-  font-size: 1.1rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 1.2rem;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5), 1px 1px 0px rgba(0, 0, 0, 0.8);
 }
 
 .restart-hint {
@@ -201,9 +204,10 @@ h1::after {
   margin-top: 15px;
   color: #fff;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 1px 1px 0px rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.4);
 }
 
 /* Wind display removed - now rendered on canvas */
