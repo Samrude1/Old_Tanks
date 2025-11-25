@@ -196,7 +196,7 @@ class WindParticle {
 
   draw() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; // Dark for visibility against bright sky
-    ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 1, 1);
+    ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 2, 2);
   }
 }
 
