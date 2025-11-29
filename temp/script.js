@@ -15,130 +15,54 @@ const PROJECTILE_SPEED_MULTIPLIER = 1.0;
 
 // ===== GAME STATE =====
 const GameState = {
-  START: "start",
   AIM: "aim",
   POWER: "power",
   RESOLVE: "resolve",
   GAME_OVER: "game_over",
 };
 
-// ===== THEMES =====
-const Themes = {
-  NORMAL: {
-    skyTop: "#c3d6ffff",
-    skyBottom: "#3168ffff",
-    ground: "#228B22",
-    groundOutline: "#1a6b1a",
-  },
-  DESERT: {
-    skyTop: "#87CEEB",
-    skyBottom: "#E0F6FF",
-    ground: "#F4A460",
-    groundOutline: "#8B4513",
-  },
-  WINTER: {
-    skyTop: "#E0FFFF",
-    skyBottom: "#B0E0E6",
-    ground: "#F0F8FF",
-    groundOutline: "#4682B4",
-  },
-};
-
-let currentTheme = Themes.NORMAL;
-let currentDifficulty = null; // Will be set after BotPersonalities is defined
-let isGameRunning = false;
-
-// Campaign Mode
-let isCampaignMode = false;
-let currentCampaignLevel = 0; // 0 = not in campaign, 1-3 = level number
-
 // ===== PROJECTILE TYPES =====
 const ProjectileType = {
-  REGULAR: {
-    id: "REGULAR",
-    name: "Regular",
-    explosionRadius: 30,
-    color: "yellow",
-    rarity: 0,
-  },
+  REGULAR: { name: "Regular", explosionRadius: 30, color: "yellow" },
   CLUSTER: {
-    id: "CLUSTER",
     name: "Cluster",
     explosionRadius: 20,
     color: "orange",
     childCount: 5,
     childRadius: 12,
-    rarity: 1,
   },
   BOUNCING: {
-    id: "BOUNCING",
     name: "Bouncing",
     explosionRadius: 25,
     color: "cyan",
     bounces: 2,
-    rarity: 1,
   },
-  HEAVY: {
-    id: "HEAVY",
-    name: "Heavy",
-    explosionRadius: 70,
-    color: "red",
-    rarity: 2,
-  },
+  HEAVY: { name: "Heavy", explosionRadius: 70, color: "red" },
   DIGGER: {
-    id: "DIGGER",
     name: "Digger",
     explosionRadius: 35,
     color: "brown",
     penetrationDepth: 80,
-    rarity: 2,
   },
   NAPALM: {
-    id: "NAPALM",
     name: "Napalm",
     explosionRadius: 25,
     color: "orangered",
     fireDuration: 1000,
     fireRadius: 60,
-    rarity: 2,
   },
   MIRV: {
-    id: "MIRV",
     name: "MIRV",
     explosionRadius: 20,
     color: "purple",
     childCount: 3,
     childRadius: 30,
-    rarity: 3,
   },
-  TELEPORTER: {
-    id: "TELEPORTER",
-    name: "Teleporter",
-    color: "cyan",
-    rarity: 3,
-  },
+  TELEPORTER: { name: "Teleporter", color: "cyan" },
 };
 
-// ===== INVENTORY UTILS =====
-function generateRandomInventory() {
-  const inventory = {};
-  for (const key in ProjectileType) {
-    const type = ProjectileType[key];
-    if (type.rarity === 0) {
-      inventory[key] = Infinity;
-    } else if (type.rarity === 1) {
-      inventory[key] = Math.floor(Math.random() * 3) + 3; // 3-5
-    } else if (type.rarity === 2) {
-      inventory[key] = Math.floor(Math.random() * 3) + 1; // 1-3
-    } else if (type.rarity === 3) {
-      inventory[key] = Math.random() < 0.5 ? 0 : 1; // 0-1
-    }
-  }
-  return inventory;
-}
-
 // ===== GAME VARIABLES =====
-let gameState = GameState.START;
+let gameState = GameState.AIM;
 let terrain = [];
 let wind = { x: 0, y: 0 };
 let currentPlayer = 1;
@@ -150,7 +74,6 @@ let player1Tank = {
   turretAngle: -Math.PI / 4,
   health: 3,
   selectedWeapon: ProjectileType.REGULAR,
-  weapons: generateRandomInventory(),
 };
 
 let player2Tank = {
@@ -160,7 +83,6 @@ let player2Tank = {
   turretAngle: -Math.PI * 0.75,
   health: 3,
   selectedWeapon: ProjectileType.REGULAR,
-  weapons: generateRandomInventory(),
 };
 
 let projectiles = [];
@@ -202,76 +124,10 @@ function playTeleportSound() {
   console.log("🔊 TELEPORT");
 }
 
-// ===== BOT PERSONALITIES =====
-const BotPersonalities = {
-  ROOKIE: {
-    name: "Rookie",
-    kFactor: 0.3,
-    randomness: 50,
-    weaponAggression: 0.1, // 10% chance for special
-  },
-  VETERAN: {
-    name: "Veteran",
-    kFactor: 0.6,
-    randomness: 10,
-    weaponAggression: 0.4, // 40% chance
-  },
-  SNIPER: {
-    name: "Sniper",
-    kFactor: 0.9,
-    randomness: 2,
-    weaponAggression: 0.6, // 60% chance
-  },
-  ELITE: {
-    name: "Elite",
-    kFactor: 1.0,
-    randomness: 0,
-    weaponAggression: 0.8, // 80% chance
-  },
-};
-
-// Set default difficulty
-currentDifficulty = BotPersonalities.VETERAN;
-
-// ===== CAMPAIGN LEVELS =====
-const CampaignLevels = [
-  {
-    name: "Boot Camp",
-    theme: Themes.NORMAL,
-    difficulty: BotPersonalities.ROOKIE,
-  },
-  {
-    name: "Grass Valley",
-    theme: Themes.NORMAL,
-    difficulty: BotPersonalities.ROOKIE,
-  },
-  {
-    name: "Sandy Shores",
-    theme: Themes.DESERT,
-    difficulty: BotPersonalities.VETERAN,
-  },
-  {
-    name: "Desert Storm",
-    theme: Themes.DESERT,
-    difficulty: BotPersonalities.VETERAN,
-  },
-  {
-    name: "Snowy Hills",
-    theme: Themes.WINTER,
-    difficulty: BotPersonalities.SNIPER,
-  },
-  {
-    name: "Final Showdown",
-    theme: Themes.WINTER,
-    difficulty: BotPersonalities.ELITE,
-  },
-];
-
 // ===== SHOOTER BOT AI =====
 class ShooterBot {
-  constructor(personality = BotPersonalities.VETERAN) {
-    this.personality = personality;
-    this.K_FACTOR = personality.kFactor;
+  constructor(kFactor = 0.6) {
+    this.K_FACTOR = kFactor;
     this.lastPower = 0;
     this.lastImpactX = 0;
     this.currentAngle = -Math.PI * 0.75;
@@ -279,7 +135,6 @@ class ShooterBot {
     this.timer = 0;
     this.targetPower = 0;
     this.turnCounter = 0;
-    console.log(`🤖 Bot Initialized: ${this.personality.name}`);
   }
 
   prepareTurn() {
@@ -309,57 +164,52 @@ class ShooterBot {
     const botTank = player2Tank;
     const targetTank = player1Tank;
 
-    // Aseenvalinta (AI)
-    const inventory = botTank.weapons;
-    const availableWeapons = Object.keys(inventory).filter(
-      (key) => inventory[key] > 0 && key !== "REGULAR" && key !== "TELEPORTER"
-    );
+    // Aseenvalinta
+    // TELEPORTER POISTETTU yleisestä erikoisasevalikoimasta
+    let specialWeapons = [
+      ProjectileType.HEAVY,
+      ProjectileType.DIGGER,
+      ProjectileType.NAPALM,
+    ];
+    const commonWeapons = [
+      ProjectileType.REGULAR,
+      ProjectileType.CLUSTER,
+      ProjectileType.BOUNCING,
+    ];
+    const cycleIndex = (this.turnCounter - 1) % commonWeapons.length;
 
-    // 1. EASTER EGG: Teleporter (1% chance if available)
-    if (inventory.TELEPORTER > 0 && Math.random() < 0.01) {
+    // 1. EASTER EGG: Teleporter (1% chance)
+    if (Math.random() < 0.01) {
       botTank.selectedWeapon = ProjectileType.TELEPORTER;
-      console.log("🤖 Bot: EASTER EGG! Using Teleporter.");
+      console.log("🤖 Bot: EASTER EGG! Using Teleporter (1% chance).");
     }
     // 2. Kriisitilanne: Botin matala elinvoima
-    else if (botTank.health <= 1 && availableWeapons.length > 0) {
-      // Yritä löytää vahva ase
-      const strongWeapons = availableWeapons.filter(
-        (k) => k === "MIRV" || k === "HEAVY" || k === "NAPALM"
-      );
-      if (strongWeapons.length > 0) {
-        const chosen =
-          strongWeapons[Math.floor(Math.random() * strongWeapons.length)];
-        botTank.selectedWeapon = ProjectileType[chosen];
-        console.log(
-          `🤖 Bot: Desperate shot! Using ${botTank.selectedWeapon.name}.`
-        );
+    else if (botTank.health <= 1) {
+      if (Math.random() < 0.5) {
+        // 50% todennäköisyys MIRV
+        botTank.selectedWeapon = ProjectileType.MIRV;
+        console.log("🤖 Bot: Desperate shot! Using MIRV (50% chance).");
       } else {
-        // Fallback to any available special
-        const chosen =
-          availableWeapons[Math.floor(Math.random() * availableWeapons.length)];
-        botTank.selectedWeapon = ProjectileType[chosen];
+        // 50% todennäköisyys Heavy/Napalm
+        const lowHealthWeapons = [ProjectileType.HEAVY, ProjectileType.NAPALM];
+        const lowHealthIndex = (this.turnCounter - 1) % lowHealthWeapons.length;
+        botTank.selectedWeapon = lowHealthWeapons[lowHealthIndex];
         console.log(
-          `🤖 Bot: Low health fallback! Using ${botTank.selectedWeapon.name}.`
+          `🤖 Bot: Low health fallback! Cycling to ${botTank.selectedWeapon.name}.`
         );
       }
     }
-    // 3. Normaali valinta (Painotettu satunnaisuus Personalityn mukaan)
-    else if (
-      availableWeapons.length > 0 &&
-      Math.random() < this.personality.weaponAggression
-    ) {
-      // Use special weapon based on aggression
-      const chosen =
-        availableWeapons[Math.floor(Math.random() * availableWeapons.length)];
-      botTank.selectedWeapon = ProjectileType[chosen];
-      console.log(
-        `🤖 Bot: Using special weapon ${botTank.selectedWeapon.name}.`
-      );
+    // 3. Erikoistilanne: Satunnainen erikoisammus (20% todennäköisyys)
+    else if (Math.random() < 0.2) {
+      const randomSpecial =
+        specialWeapons[Math.floor(Math.random() * specialWeapons.length)];
+      botTank.selectedWeapon = randomSpecial;
+      console.log(`🤖 Bot: Lucky shot! Using ${randomSpecial.name}.`);
     }
-    // 4. Default: Regular
+    // 4. Pääsääntö: Kierrätä kolmea yleisintä
     else {
-      botTank.selectedWeapon = ProjectileType.REGULAR;
-      console.log(`🤖 Bot: Using Regular weapon.`);
+      botTank.selectedWeapon = commonWeapons[cycleIndex];
+      console.log(`🤖 Bot: Cycling weapon to ${botTank.selectedWeapon.name}.`);
     }
 
     // 1. Angle Selection (Obstacle Logic)
@@ -420,10 +270,8 @@ class ShooterBot {
 
       newPower = this.lastPower + cappedCorrection;
 
-      // Lisää satunnaisuus (Personalityn mukaan)
-      const noise = (Math.random() - 0.5) * this.personality.randomness;
-      newPower += noise;
-      console.log(`🤖 Bot: Added noise ${noise.toFixed(1)} to shot.`);
+      // Pieni satunnaisuus ylikorjaamisen estämiseksi
+      newPower += (Math.random() - 0.5) * 10;
 
       // Bouncing-ammus: ammu hieman vajaaksi, koska se pomppii eteenpäin.
       if (botTank.selectedWeapon === ProjectileType.BOUNCING) {
@@ -498,7 +346,7 @@ class ShooterBot {
   }
 }
 
-const bot = new ShooterBot(currentDifficulty);
+const bot = new ShooterBot();
 
 // ===== PROJECTILE UTILS: SPLIT AMMUNITION FUNCTION =====
 function splitProjectile(parent) {
@@ -546,9 +394,9 @@ class WindParticle {
     else if (this.y >= SCREEN_HEIGHT) this.y -= SCREEN_HEIGHT;
   }
   draw() {
-    // Enhanced visibility - larger, darker particles for bright backgrounds
-    ctx.fillStyle = "rgba(50, 50, 50, 0.6)";
-    ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 3, 3);
+    // Enhanced visibility - larger, more opaque particles
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 2, 2);
   }
 }
 
@@ -666,7 +514,7 @@ function createMuzzleFlash(x, y, angle) {
   );
 }
 
-// ===== EXPLOSION CLASS & UPDATES =====
+// ===== EXPLOSION CLASS & UPDATES (Ei muutoksia) =====
 class Explosion {
   constructor(x, y, radius) {
     this.x = x;
@@ -726,37 +574,19 @@ function updateExplosions(dt) {
   }
 }
 
-// ===== TERRAIN & SETUP =====
+// ===== TERRAIN & SETUP (Ei muutoksia) =====
 function generateTerrain() {
   terrain = [];
-
-  // 1. Generate control points (Rolling Hills)
-  const segmentWidth = 100;
-  const numSegments = Math.ceil(SCREEN_WIDTH / segmentWidth) + 1;
-  const controlPoints = [];
-
-  for (let i = 0; i < numSegments; i++) {
-    // Random height between 300 and 500 (Screen Height is 600)
-    // Keep it somewhat level for playability
-    controlPoints.push(350 + Math.random() * 150);
-  }
-
-  // 2. Interpolate
+  let height = 400;
   for (let x = 0; x < SCREEN_WIDTH; x++) {
-    const segmentIndex = Math.floor(x / segmentWidth);
-    const segmentT = (x % segmentWidth) / segmentWidth;
-
-    const y1 = controlPoints[segmentIndex];
-    const y2 = controlPoints[segmentIndex + 1] || y1; // Handle last segment
-
-    // Cosine Interpolation for smooth hills
-    const mu2 = (1 - Math.cos(segmentT * Math.PI)) / 2;
-    let height = y1 * (1 - mu2) + y2 * mu2;
-
-    // 3. Add small noise for texture
     height += (Math.random() - 0.5) * 5;
-
+    height = Math.max(200, Math.min(SCREEN_HEIGHT - 50, height));
     terrain[x] = height;
+  }
+  for (let i = 0; i < 3; i++) {
+    for (let x = 1; x < SCREEN_WIDTH - 1; x++) {
+      terrain[x] = (terrain[x - 1] + terrain[x] + terrain[x + 1]) / 3;
+    }
   }
 }
 
@@ -775,7 +605,7 @@ function setRandomWind() {
   windParticles.forEach((p) => (p.vx = wind.x * 5));
 }
 
-// ===== UPDATE LOOPS =====
+// ===== UPDATE LOOPS (Ei muutoksia) =====
 function updateTank(tank, dt) {
   if (tank.health <= 0) return;
 
@@ -825,16 +655,6 @@ function fireProjectile() {
 
   createMuzzleFlash(turretX, turretY, activeTank.turretAngle);
   playShootSound();
-
-  // Vähennä ammuksia
-  if (activeTank.weapons[weapon.id] !== Infinity) {
-    activeTank.weapons[weapon.id]--;
-    // Jos ammukset loppuivat, vaihda takaisin Regular-aseeseen
-    if (activeTank.weapons[weapon.id] <= 0) {
-      activeTank.selectedWeapon = ProjectileType.REGULAR;
-      console.log(`Ammo depleted for ${weapon.name}. Switching to Regular.`);
-    }
-  }
 
   gameState = GameState.RESOLVE;
   chargePower = 0;
@@ -989,20 +809,13 @@ document.addEventListener("keydown", (e) => {
     }
     if (e.key === "s" || e.key === "S") {
       const keys = Object.keys(ProjectileType);
-      let currentIdx = keys.indexOf(player1Tank.selectedWeapon.id);
-      let nextIdx = currentIdx;
-      let found = false;
-
-      // Etsi seuraava ase, jolla on ammuksia
-      for (let i = 0; i < keys.length; i++) {
-        nextIdx = (nextIdx + 1) % keys.length;
-        const weaponKey = keys[nextIdx];
-        if (player1Tank.weapons[weaponKey] > 0) {
-          player1Tank.selectedWeapon = ProjectileType[weaponKey];
-          found = true;
-          break;
-        }
-      }
+      let currentIdx = keys.indexOf(
+        Object.keys(ProjectileType).find(
+          (k) => ProjectileType[k] === player1Tank.selectedWeapon
+        )
+      );
+      let nextIdx = (currentIdx + 1) % keys.length;
+      player1Tank.selectedWeapon = ProjectileType[keys[nextIdx]];
     }
   }
 
@@ -1099,50 +912,32 @@ function update() {
 function checkGameOver() {
   if (player1Tank.health <= 0 || player2Tank.health <= 0) {
     gameState = GameState.GAME_OVER;
-
-    // Campaign Mode Logic
-    if (isCampaignMode) {
-      if (player1Tank.health > 0) {
-        // Player Won
-        if (currentCampaignLevel < CampaignLevels.length) {
-          // Not final level - show level complete
-          showLevelComplete();
-        } else {
-          // Final level - show campaign complete
-          showCampaignComplete();
-        }
-      } else {
-        // Player Lost
-        showMissionFailed();
-      }
-    }
-
     return true;
   }
   return false;
 }
 
 function draw() {
-  // Cartoon style: Bright blue sky with gradient (Theme based)
+  // Cartoon style: Bright blue sky with gradient
   const gradient = ctx.createLinearGradient(0, 0, 0, SCREEN_HEIGHT);
-  gradient.addColorStop(0, currentTheme.skyTop); // Sky top
-  gradient.addColorStop(0.6, currentTheme.skyTop); // Mid
-  gradient.addColorStop(1, currentTheme.skyBottom); // Horizon
+  gradient.addColorStop(0, "#c3d6ffff"); // Sky blue at top
+  gradient.addColorStop(0.6, "#95c7ffff");
+  gradient.addColorStop(1, "#3168ffff"); // Slightly deeper at horizon
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
   windParticles.forEach((p) => p.draw());
 
-  // Cartoon style: Vibrant grass (Theme based)
-  ctx.fillStyle = currentTheme.ground;
+  // Cartoon style: Vibrant green grass
+  ctx.fillStyle = "#228B22"; // Forest green
   ctx.beginPath();
   ctx.moveTo(0, SCREEN_HEIGHT);
   for (let x = 0; x < SCREEN_WIDTH; x++) ctx.lineTo(x, terrain[x]);
   ctx.lineTo(SCREEN_WIDTH, SCREEN_HEIGHT);
   ctx.fill();
 
-  // Add darker outline for cartoon effect (Theme based)
-  ctx.strokeStyle = currentTheme.groundOutline;
+  // Add darker green outline for cartoon effect
+  ctx.strokeStyle = "#1a6b1a";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(0, terrain[0]);
@@ -1421,35 +1216,16 @@ function drawTank(tank) {
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 2;
 
-  // 1. Tracks (Bottom)
-  ctx.fillStyle = "#333";
-  ctx.fillRect(-12, 6, 24, 6);
-  ctx.strokeRect(-12, 6, 24, 6);
+  // Draw tank body with outline
+  ctx.fillRect(-10, 0, 20, 10);
+  ctx.strokeRect(-10, 0, 20, 10);
 
-  // 2. Main Body (Rounded)
-  ctx.fillStyle = tank.color;
-  ctx.beginPath();
-  ctx.roundRect(-10, -2, 20, 10, 3);
-  ctx.fill();
-  ctx.stroke();
-
-  // 3. Turret (Dome)
-  ctx.beginPath();
-  ctx.arc(0, -2, 7, Math.PI, 0); // Semi-circle dome
-  ctx.lineTo(7, -2);
-  ctx.lineTo(-7, -2);
-  ctx.fill();
-  ctx.stroke();
-
-  // 4. Barrel
-  ctx.lineWidth = 4;
+  // Draw turret with outline
+  ctx.lineWidth = 3;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(0, -4); // Start from center of dome
-  ctx.lineTo(
-    Math.cos(tank.turretAngle) * 18,
-    Math.sin(tank.turretAngle) * 18 - 4
-  );
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(tank.turretAngle) * 15, Math.sin(tank.turretAngle) * 15);
   ctx.stroke();
 
   ctx.restore();
@@ -1504,15 +1280,6 @@ function drawUI() {
     SCREEN_WIDTH / 2,
     55
   );
-
-  // Ammo count
-  const ammoCount = currentTank.weapons[currentTank.selectedWeapon.id];
-  const ammoText = ammoCount === Infinity ? "∞" : `x${ammoCount}`;
-
-  ctx.fillStyle = "#000";
-  ctx.fillText(ammoText, SCREEN_WIDTH / 2 + 1, 80);
-  ctx.fillStyle = "#FFF";
-  ctx.fillText(ammoText, SCREEN_WIDTH / 2, 79);
 
   // Power bar - cartoon style with thick border
   if (gameState === GameState.POWER) {
@@ -1572,155 +1339,16 @@ function initializeGame() {
   bot.lastImpactX = 0;
   bot.turnCounter = 0;
 
-  // Aseet nollataan ja arvotaan uudet
-  player1Tank.weapons = generateRandomInventory();
-  player2Tank.weapons = generateRandomInventory();
+  // Aseet nollataan
   player1Tank.selectedWeapon = ProjectileType.REGULAR;
   player2Tank.selectedWeapon = ProjectileType.REGULAR;
 }
 
 // ===== START (Ei muutoksia) =====
-// ===== START SCREEN LOGIC =====
-function selectTheme(themeName) {
-  currentTheme = Themes[themeName];
-
-  // Update UI buttons
-  const buttons = document.querySelectorAll(".theme-btn");
-  buttons.forEach((btn) => {
-    btn.classList.remove("selected");
-    if (btn.textContent.toUpperCase() === themeName) {
-      btn.classList.add("selected");
-    }
-  });
-}
-
-function selectDifficulty(diffName) {
-  currentDifficulty = BotPersonalities[diffName];
-
-  // Update UI buttons
-  const buttons = document.querySelectorAll(".diff-btn");
-  buttons.forEach((btn) => {
-    btn.classList.remove("selected");
-    if (btn.textContent.toUpperCase() === diffName) {
-      btn.classList.add("selected");
-    }
-  });
-}
-
-function selectMode(mode) {
-  const quickplayOptions = document.getElementById("quickplay-options");
-  const campaignOptions = document.getElementById("campaign-options");
-  const modeButtons = document.querySelectorAll(".mode-btn");
-
-  modeButtons.forEach((btn) => {
-    btn.classList.remove("selected");
-    if (btn.textContent.toLowerCase().includes(mode)) {
-      btn.classList.add("selected");
-    }
-  });
-
-  if (mode === "campaign") {
-    quickplayOptions.style.display = "none";
-    campaignOptions.style.display = "block";
-    isCampaignMode = true;
-  } else {
-    quickplayOptions.style.display = "block";
-    campaignOptions.style.display = "none";
-    isCampaignMode = false;
-  }
-}
-
-function startGame() {
-  if (isCampaignMode) {
-    // Start campaign from level 1
-    currentCampaignLevel = 1;
-    loadCampaignLevel(currentCampaignLevel);
-  } else {
-    // Quick Play - use selected theme and difficulty
-    bot.personality = currentDifficulty;
-    bot.K_FACTOR = currentDifficulty.kFactor;
-    console.log(`🤖 Bot Updated to: ${bot.personality.name}`);
-  }
-
-  document.getElementById("start-screen").style.display = "none";
-  document.getElementById("menu-btn").style.display = "block";
-  isGameRunning = true;
-  initializeGame();
-}
-
-function loadCampaignLevel(levelNum) {
-  const level = CampaignLevels[levelNum - 1];
-  currentTheme = level.theme;
-  currentDifficulty = level.difficulty;
-  bot.personality = level.difficulty;
-  bot.K_FACTOR = level.difficulty.kFactor;
-  console.log(`🎮 Campaign Level ${levelNum}: ${level.name}`);
-}
-
-function showLevelComplete() {
-  setTimeout(() => {
-    const nextLevel = currentCampaignLevel + 1;
-    const nextLevelName = CampaignLevels[nextLevel - 1].name;
-
-    document.getElementById(
-      "victory-title"
-    ).textContent = `🎉 Level ${currentCampaignLevel} Complete!`;
-    document.getElementById(
-      "victory-message"
-    ).textContent = `Next: Level ${nextLevel} - ${nextLevelName}`;
-    document.getElementById("victory-overlay").style.display = "flex";
-  }, 1000);
-}
-
-function showCampaignComplete() {
-  setTimeout(() => {
-    document.getElementById("campaign-complete-overlay").style.display = "flex";
-  }, 1000);
-}
-
-function showMissionFailed() {
-  setTimeout(() => {
-    document.getElementById("defeat-overlay").style.display = "flex";
-  }, 1000);
-}
-
-// Overlay button handlers
-function continueToNextLevel() {
-  document.getElementById("victory-overlay").style.display = "none";
-  currentCampaignLevel++;
-  loadCampaignLevel(currentCampaignLevel);
-  initializeGame();
-}
-
-function retryLevel() {
-  document.getElementById("defeat-overlay").style.display = "none";
-  initializeGame();
-}
-
-function returnToMenu() {
-  document.getElementById("victory-overlay").style.display = "none";
-  document.getElementById("defeat-overlay").style.display = "none";
-  document.getElementById("campaign-complete-overlay").style.display = "none";
-  showMainMenu();
-}
-
-function showMainMenu() {
-  isGameRunning = false;
-  document.getElementById("start-screen").style.display = "flex";
-  document.getElementById("menu-btn").style.display = "none";
-}
-
-// ===== START =====
-// initializeGame() is called by startGame()
-// Initial render for background
-generateTerrain();
-draw();
-
+initializeGame();
 function loop() {
-  if (isGameRunning) {
-    update();
-    draw();
-  }
+  update();
+  draw();
   requestAnimationFrame(loop);
 }
 loop();

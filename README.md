@@ -1,138 +1,294 @@
-# Scorched Earth - Tanks Game
+# Tank Battle Cartoon! 🎮💥
 
-A modern recreation of the classic Scorched Earth artillery game with enhanced physics, multiple weapon types, and two-player local multiplayer.
+A modern recreation of the classic Scorched Earth artillery game with enhanced physics, AI bot opponents, campaign mode, multiple weapon types, and stunning cartoon-style visuals.
 
-![Tanks Game](screenshot.png?v2)
+![Tanks Game](screenshot.png)
 
-## Features
+## 🎯 Features
 
 ### Core Gameplay
-
-- **Two-Player Local Multiplayer** - Battle on the same keyboard
+- **Player vs AI Bot** - Battle against intelligent AI opponents with 4 difficulty levels
+- **Campaign Mode** - Progress through 6 challenging levels with increasing difficulty
+- **Quick Play Mode** - Instant action with customizable themes and difficulty
 - **Realistic Physics** - Gravity, wind, and ballistic trajectories
 - **Dynamic Terrain** - Procedurally generated landscapes with destruction
-- **Multiple Weapon Types** - Regular, Cluster, Bouncing, and Heavy projectiles
+- **8 Unique Weapon Types** - Each with distinct visuals and mechanics
 
-### Game Mechanics
+### Game Modes
+- **Quick Play** - Choose your theme (Normal, Desert, Winter) and bot difficulty
+- **Campaign** - Fight through 6 levels from Boot Camp to Final Showdown
 
-- **Turret Aiming** - Precise angle control with keyboard
-- **Power Charging** - Hold-to-charge firing system
-- **Wind System** - Visual wind particles affect projectile flight
-- **Terrain Destruction** - Circular crater deformation on impact
-- **Tank Gravity** - Tanks fall when ground is destroyed beneath them
+### AI Bot System
+- **Rookie** - Learning the ropes (30% accuracy, high randomness)
+- **Veteran** - Experienced fighter (60% accuracy, moderate randomness)
+- **Sniper** - Precision shooter (90% accuracy, minimal randomness)
+- **Elite** - Master tactician (100% accuracy, perfect shots)
+
+### Weapons Arsenal
+1. **Regular** - Standard projectile with medium explosion (Infinite ammo)
+2. **Cluster** - Splits into 5 smaller projectiles (3-5 shots)
+3. **Bouncing** - Bounces off terrain before exploding (3-5 shots)
+4. **Heavy** - Massive explosion radius (1-3 shots)
+5. **Digger** - Penetrates terrain before exploding (1-3 shots)
+6. **Napalm** - Creates burning damage zone (1-3 shots)
+7. **MIRV** - Multiple independently targeted warheads (0-1 shots)
+8. **Teleporter** - Instantly relocate your tank (0-1 shots, rare)
 
 ### Visual Effects
+- **Cartoon Art Style** - Vibrant colors, bold outlines, playful aesthetics
+- **Unique Projectile Visuals** - Each weapon has distinct animated appearance
+- **Particle Systems** - Explosions, debris, smoke, and muzzle flashes
+- **Wind Visualization** - 80 particles showing wind direction and strength
+- **Theme Variations** - Normal (green grass), Desert (sandy), Winter (snowy)
+- **Smooth Animations** - 60 FPS gameplay with optimized rendering
 
-- **Animated Explosions** - Growing and shrinking blast effects
-- **Projectile Trails** - Visual feedback for shot tracking
-- **Wind Particles** - 150 particles showing wind direction and strength
-- **Health Display** - Heart-based health indicators
-
-## Controls
+## 🎮 Controls
 
 ### Player 1 (Green Tank)
-
 - **A/D** - Aim turret left/right
 - **W** - Hold to charge power, release to fire
-- **S** - Cycle through weapons
-
-### Player 2 (Red Tank)
-
-- **←/→** - Aim turret left/right
-- **SPACE** - Hold to charge power, release to fire
-- **TAB** - Cycle through weapons
+- **S** - Cycle through available weapons
+- **W (mid-flight)** - Split cluster bombs manually
 
 ### General
-
 - **R** - Restart game
+- **☰ Menu** - Return to main menu (during game)
 
-## Weapons
+## 🛠️ Technical Architecture
 
-1. **Regular** - Standard projectile with medium explosion
-2. **Cluster** - Splits into 5 smaller projectiles on impact
-3. **Bouncing** - Bounces off terrain 2 times before exploding
-4. **Heavy** - Large explosion radius for maximum damage
+### Modular Code Structure
+The game uses a modern ES6 module architecture for maintainability and performance:
 
-## Configuration
-
-The game includes several configurable constants in `script.js`:
-
-```javascript
-const GRAVITY = 20; // Physics gravity
-const MAX_WIND_SPEED = 5; // Maximum wind strength
-const MAX_LAUNCH_SPEED = 200; // Shot power (default: 200)
-const PROJECTILE_SPEED_MULTIPLIER = 2.0; // Visual speed (default: 1.0)
+```
+js/
+├── main.js              # Entry point and game loop
+├── constants.js         # Game constants and configurations
+├── state.js            # Centralized game state
+├── utils.js            # Utility functions
+├── audio.js            # Sound effects system
+├── terrain.js          # Terrain generation
+├── physics.js          # Physics and projectile logic
+├── render.js           # All rendering code
+├── gameLogic.js        # Game flow and initialization
+├── input.js            # Keyboard input handling
+├── ui.js               # UI and menu management
+└── classes/
+    ├── ShooterBot.js   # AI bot with learning system
+    └── Particles.js    # Particle effects and explosions
 ```
 
-### Adjustable Parameters
-
-- **MAX_LAUNCH_SPEED** - Increase for more powerful shots
-- **PROJECTILE_SPEED_MULTIPLIER** - Adjust visual speed without changing physics
-  - `1.0` = Normal speed
-  - `2.0` = 2x faster visually
-  - `0.5` = Slow motion effect
-
-## Technical Details
-
 ### Physics System
+- Delta-time based physics for consistent gameplay across devices
+- Wind affects projectiles with realistic horizontal force
+- Gravity simulation with proper ballistic trajectories
+- Collision detection with terrain and tanks
+- Terrain deformation with circular crater generation
 
-- Delta-time based physics for consistent gameplay
-- Separate visual speed multiplier for performance tuning
-- Wind affects projectiles realistically (subtle horizontal force)
-- Gravity constant matches reference implementation
+### AI Bot Intelligence
+- **Learning System** - Bot improves aim based on previous shot impacts
+- **Obstacle Detection** - Adjusts trajectory to clear terrain obstacles
+- **Crater Escape** - Special logic to escape deep craters
+- **Weapon Selection** - Strategic weapon choice based on situation
+- **Personality System** - Different K-factors and randomness per difficulty
 
-### Terrain Generation
+### Performance Optimizations
+- Reduced particle counts (80 wind particles, 8 explosion particles)
+- Optimized trail rendering (10 points max)
+- Efficient collision detection
+- Canvas-based rendering with minimal redraws
+- Module caching for faster load times
 
-- Multi-octave noise for varied landscapes
-- Random features (hills, valleys, plateaus)
-- 2-4 unique features per map
-- Smooth and plateau terrain types
+## 🚀 Installation & Running
 
-### Game States
+### Requirements
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Local HTTP server (required for ES6 modules)
 
-- **AIM** - Player adjusts turret angle
-- **POWER** - Player charges shot power
-- **RESOLVE** - Projectiles in flight, explosions active
-- **GAME_OVER** - Victory screen with restart option
+### Quick Start
 
-## Installation
+**Option 1: Python HTTP Server (Recommended)**
+```bash
+cd tanks
+python -m http.server 8000
+```
+Then open: http://localhost:8000
 
-1. Clone the repository
-2. Open `index.html` in a modern web browser
-3. No build process required - pure HTML/CSS/JavaScript
+**Option 2: Node.js HTTP Server**
+```bash
+npm install -g http-server
+cd tanks
+http-server -p 8000
+```
+Then open: http://localhost:8000
 
-## Browser Compatibility
+**Option 3: VS Code Live Server**
+1. Install "Live Server" extension
+2. Right-click `index.html`
+3. Select "Open with Live Server"
 
-- Chrome/Edge (recommended)
-- Firefox
-- Safari
-- Any modern browser with Canvas support
+### Why HTTP Server?
+ES6 modules require CORS-compliant loading, which `file://` protocol doesn't support. A local HTTP server solves this.
 
-## Development
-
-### File Structure
+## 📁 File Structure
 
 ```
 tanks/
-├── index.html          # Main HTML file
-├── script.js           # Game logic and physics
-├── style.css           # Styling
-├── .gitignore          # Git ignore rules
-└── README.md           # This file
+├── index.html              # Main HTML file
+├── style.css              # Cartoon-style CSS
+├── script.js              # Legacy monolithic file (backup)
+├── README.md              # This file
+├── REFACTORING_SUMMARY.md # Detailed refactoring documentation
+├── screenshot.png         # Game screenshot
+├── .gitignore            # Git ignore rules
+├── js/                   # Modular JavaScript (13 files)
+│   ├── main.js
+│   ├── constants.js
+│   ├── state.js
+│   ├── utils.js
+│   ├── audio.js
+│   ├── terrain.js
+│   ├── physics.js
+│   ├── render.js
+│   ├── gameLogic.js
+│   ├── input.js
+│   ├── ui.js
+│   └── classes/
+│       ├── ShooterBot.js
+│       └── Particles.js
+└── sounds/               # Sound effects (9 files)
+    ├── shoot.wav
+    ├── ground_hit.wav
+    ├── tank_hit.wav
+    ├── tank_destroy.wav
+    ├── napalm.wav
+    └── teleport.wav
 ```
 
-## Credits
+## 🎨 Themes
 
-Inspired by the classic DOS game "Scorched Earth" (1991) by Wendell Hicken.
+### Normal Theme
+- Sky: Bright blue gradient
+- Ground: Vibrant green grass
+- Atmosphere: Classic battlefield
 
-## License
+### Desert Theme
+- Sky: Light blue to white gradient
+- Ground: Sandy tan terrain
+- Atmosphere: Hot and arid
 
-MIT License - Feel free to use and modify!
+### Winter Theme
+- Sky: Pale cyan gradient
+- Ground: Snow white terrain
+- Atmosphere: Cold and crisp
 
-## Roadmap
+## 🤖 Bot AI Features
 
-See `enhancement_plan.md` for upcoming features including:
+### Intelligent Targeting
+- Calculates optimal angle based on distance and obstacles
+- Adjusts for wind conditions
+- Learns from previous shot impacts
+- Uses iterative correction with K-factor learning
 
-- Camera shake and visual polish
-- Limited ammo system
-- Power-ups and strategic features
+### Strategic Weapon Selection
+- **Desperate Mode** - Uses powerful weapons when health is low
+- **Aggression System** - Higher difficulties use special weapons more often
+- **Easter Egg** - 1% chance to use Teleporter if available
+- **Tactical Choice** - Selects weapons based on situation
+
+### Obstacle Handling
+- Line-of-sight detection
+- High arc trajectory for blocked shots
+- Crater depth detection and escape logic
+- Adaptive power adjustment
+
+## 🎯 Campaign Levels
+
+1. **Boot Camp** (Rookie) - Normal theme, easy start
+2. **Grass Valley** (Rookie) - Normal theme, learning continues
+3. **Sandy Shores** (Veteran) - Desert theme, difficulty increases
+4. **Desert Storm** (Veteran) - Desert theme, tactical challenge
+5. **Snowy Hills** (Sniper) - Winter theme, precision required
+6. **Final Showdown** (Elite) - Winter theme, ultimate test
+
+## 🔧 Configuration
+
+Key constants in `js/constants.js`:
+
+```javascript
+const GRAVITY = 150;                // Physics gravity
+const MAX_WIND_SPEED = 50;         // Maximum wind strength
+const MAX_LAUNCH_SPEED = 600;      // Maximum shot power
+const MAX_CHARGE_TIME = 2000;      // Power charge time (ms)
+```
+
+## 🎵 Sound Effects
+
+The game includes 6 sound effects:
+- Shoot - Projectile firing
+- Ground Hit - Terrain impact
+- Tank Hit - Tank damage
+- Tank Destroy - Tank destruction
+- Napalm - Fire weapon activation
+- Teleport - Teleporter activation
+
+## 📊 Game Statistics
+
+- **Code Lines**: ~1,900 (split across 13 modules)
+- **Projectile Types**: 8 unique weapons
+- **AI Personalities**: 4 difficulty levels
+- **Campaign Levels**: 6 progressive challenges
+- **Themes**: 3 visual environments
+- **Particle Systems**: Wind, explosions, debris, smoke, napalm
+
+## 🐛 Known Issues
+
+- ES6 modules require HTTP server (not `file://` protocol)
+- Bot may occasionally overshoot in deep craters (learning system compensates)
+
+## 🚀 Future Enhancements
+
+- [ ] Multiplayer over network
+- [ ] More campaign levels
+- [ ] Additional weapon types
+- [ ] Power-ups and pickups
+- [ ] Destructible structures
+- [ ] Weather effects
+- [ ] Replay system
+- [ ] Leaderboards
+
+## 📝 Development Notes
+
+### Recent Refactoring (2025-11-29)
+- Split monolithic `script.js` (1727 lines) into 13 modular files
+- Improved code organization and maintainability
+- Enhanced performance with optimized particle systems
+- Better separation of concerns (physics, rendering, AI, UI)
+- See `REFACTORING_SUMMARY.md` for detailed documentation
+
+### Performance Optimizations
+- Particle count reduced from 100 to 80 (wind)
+- Trail length reduced from 20 to 10 points
+- Explosion particles reduced from 10 to 8
+- Efficient module loading and caching
+
+## 🙏 Credits
+
+- Inspired by **Scorched Earth** (1991) by Wendell Hicken
+- Modern recreation with enhanced features and AI
+- Cartoon art style for family-friendly appeal
+
+## 📄 License
+
+MIT License - Feel free to use, modify, and distribute!
+
+## 🎮 Quick Tips
+
+1. **Wind Matters** - Watch the wind indicator and adjust your aim
+2. **Power Control** - Longer charge = more power, but harder to control
+3. **Weapon Strategy** - Save special weapons for critical moments
+4. **Terrain Use** - Use hills for cover and high-arc shots
+5. **Bot Learning** - The bot learns from each shot, adapt your strategy!
+
+---
+
+**Enjoy the battle! 🎮💥**
