@@ -206,6 +206,14 @@ function playTeleportSound() {
   new Audio("sounds/teleport.wav").play();
   console.log("🔊 TELEPORT");
 }
+function playBounceSound() {
+  new Audio("sounds/bounce.wav").play();
+  console.log("🔊 BOUNCE");
+}
+function playClusterSplitSound() {
+  new Audio("sounds/cluster_split.wav").play();
+  console.log("🔊 CLUSTER SPLIT");
+}
 
 // ===== BOT PERSONALITIES =====
 const BotPersonalities = {
@@ -625,10 +633,10 @@ class Particle {
     this.vy = vy;
     this.type = type;
     this.lifetime = 0;
-    this.maxLifetime = 1.0;
-    this.size = Math.random() * 3 + 1;
+    this.maxLifetime = type === "smoke" ? 0.8 : 1.0; // Smoke lasts slightly less
+    this.size = type === "smoke" ? Math.random() * 4 + 3 : Math.random() * 3 + 1; // Larger smoke
     this.isDead = false;
-    this.color = type === "smoke" ? "rgba(100,100,100,0.5)" : "orange";
+    this.color = type === "smoke" ? "rgba(150,150,150,0.8)" : "orange"; // Lighter, more visible smoke
   }
   update(dt) {
     this.lifetime += dt;
@@ -666,9 +674,37 @@ function createExplosionParticles(x, y, radius) {
   }
 }
 function createMuzzleFlash(x, y, angle) {
-  particles.push(
-    new Particle(x, y, Math.cos(angle) * 50, Math.sin(angle) * 50, "smoke")
-  );
+  // Create multiple smoke particles for better visibility
+  for (let i = 0; i < 5; i++) {
+    const spread = (Math.random() - 0.5) * 0.3; // Slight angle variation
+    const speed = 80 + Math.random() * 40; // Variable speed
+    particles.push(
+      new Particle(
+        x,
+        y,
+        Math.cos(angle + spread) * speed,
+        Math.sin(angle + spread) * speed,
+        "smoke"
+      )
+    );
+  }
+}
+
+function createSplitEffect(x, y) {
+  // Create burst of particles when cluster/MIRV splits
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 * i) / 12; // Evenly distributed
+    const speed = 60 + Math.random() * 40;
+    particles.push(
+      new Particle(
+        x,
+        y,
+        Math.cos(angle) * speed,
+        Math.sin(angle) * speed,
+        "smoke"
+      )
+    );
+  }
 }
 
 // ===== EXPLOSION CLASS & UPDATES =====
@@ -868,6 +904,8 @@ function updateProjectiles(dt) {
       p.flightTime > 1.0 // Split-time after 1s.
     ) {
       splitProjectile(p);
+      createSplitEffect(p.x, p.y);
+      playClusterSplitSound();
       p.canSplit = false;
       projectiles.splice(i, 1);
       continue;
@@ -898,6 +936,7 @@ function updateProjectiles(dt) {
         p.vy = -p.vy * 0.6;
         p.bounces--;
         p.y -= 5;
+        playBounceSound();
       } else if (p.type === ProjectileType.NAPALM) {
         napalmZones.push(
           new NapalmZone(p.x, p.y, p.type.fireRadius, p.type.fireDuration)
@@ -1025,6 +1064,8 @@ document.addEventListener("keydown", (e) => {
         p.canSplit
       ) {
         splitProjectile(p);
+        createSplitEffect(p.x, p.y);
+        playClusterSplitSound();
         projectiles.splice(i, 1); // Poista emoammus
         break; // Oletetaan, että vain yksi ammus lentää kerrallaan
       }
