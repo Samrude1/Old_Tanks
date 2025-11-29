@@ -56,26 +56,9 @@ A modern recreation of the classic Scorched Earth artillery game with enhanced p
 
 ## 🛠️ Technical Architecture
 
-### Modular Code Structure
-The game uses a modern ES6 module architecture for maintainability and performance:
+### Code Structure
+The game is contained in a single optimized `script.js` file for easy deployment and local play without needing a server.
 
-```
-js/
-├── main.js              # Entry point and game loop
-├── constants.js         # Game constants and configurations
-├── state.js            # Centralized game state
-├── utils.js            # Utility functions
-├── audio.js            # Sound effects system
-├── terrain.js          # Terrain generation
-├── physics.js          # Physics and projectile logic
-├── render.js           # All rendering code
-├── gameLogic.js        # Game flow and initialization
-├── input.js            # Keyboard input handling
-├── ui.js               # UI and menu management
-└── classes/
-    ├── ShooterBot.js   # AI bot with learning system
-    └── Particles.js    # Particle effects and explosions
-```
 
 ### Physics System
 - Delta-time based physics for consistent gameplay across devices
@@ -100,34 +83,9 @@ js/
 
 ## 🚀 Installation & Running
 
-### Requirements
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Local HTTP server (required for ES6 modules)
-
 ### Quick Start
+Simply open `index.html` in any modern web browser to play! No installation or server required.
 
-**Option 1: Python HTTP Server (Recommended)**
-```bash
-cd tanks
-python -m http.server 8000
-```
-Then open: http://localhost:8000
-
-**Option 2: Node.js HTTP Server**
-```bash
-npm install -g http-server
-cd tanks
-http-server -p 8000
-```
-Then open: http://localhost:8000
-
-**Option 3: VS Code Live Server**
-1. Install "Live Server" extension
-2. Right-click `index.html`
-3. Select "Open with Live Server"
-
-### Why HTTP Server?
-ES6 modules require CORS-compliant loading, which `file://` protocol doesn't support. A local HTTP server solves this.
 
 ## 📁 File Structure
 
@@ -135,26 +93,10 @@ ES6 modules require CORS-compliant loading, which `file://` protocol doesn't sup
 tanks/
 ├── index.html              # Main HTML file
 ├── style.css              # Cartoon-style CSS
-├── script.js              # Legacy monolithic file (backup)
+├── script.js              # Main game code
 ├── README.md              # This file
-├── REFACTORING_SUMMARY.md # Detailed refactoring documentation
 ├── screenshot.png         # Game screenshot
 ├── .gitignore            # Git ignore rules
-├── js/                   # Modular JavaScript (13 files)
-│   ├── main.js
-│   ├── constants.js
-│   ├── state.js
-│   ├── utils.js
-│   ├── audio.js
-│   ├── terrain.js
-│   ├── physics.js
-│   ├── render.js
-│   ├── gameLogic.js
-│   ├── input.js
-│   ├── ui.js
-│   └── classes/
-│       ├── ShooterBot.js
-│       └── Particles.js
 └── sounds/               # Sound effects (9 files)
     ├── shoot.wav
     ├── ground_hit.wav
@@ -242,7 +184,6 @@ The game includes 6 sound effects:
 
 ## 🐛 Known Issues
 
-- ES6 modules require HTTP server (not `file://` protocol)
 - Bot may occasionally overshoot in deep craters (learning system compensates)
 
 ## 🚀 Future Enhancements
@@ -259,11 +200,9 @@ The game includes 6 sound effects:
 ## 📝 Development Notes
 
 ### Recent Refactoring (2025-11-29)
-- Split monolithic `script.js` (1727 lines) into 13 modular files
-- Improved code organization and maintainability
-- Enhanced performance with optimized particle systems
-- Better separation of concerns (physics, rendering, AI, UI)
-- See `REFACTORING_SUMMARY.md` for detailed documentation
+- Optimized `script.js` for performance and readability
+- Enhanced particle systems
+- Improved AI logic
 
 ### Performance Optimizations
 - Particle count reduced from 100 to 80 (wind)

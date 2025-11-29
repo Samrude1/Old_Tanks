@@ -120,7 +120,7 @@ const ProjectileType = {
 };
 
 // ===== INVENTORY UTILS =====
-function generateRandomInventory() {
+function generateRandomInventory(isCampaign = false) {
   const inventory = {};
   for (const key in ProjectileType) {
     const type = ProjectileType[key];
@@ -131,7 +131,12 @@ function generateRandomInventory() {
     } else if (type.rarity === 2) {
       inventory[key] = Math.floor(Math.random() * 3) + 1; // 1-3
     } else if (type.rarity === 3) {
-      inventory[key] = Math.random() < 0.5 ? 0 : 1; // 0-1
+      // In campaign mode, guarantee at least 1 MIRV/Teleporter
+      if (isCampaign) {
+        inventory[key] = Math.floor(Math.random() * 2) + 1; // 1-2
+      } else {
+        inventory[key] = Math.random() < 0.5 ? 0 : 1; // 0-1
+      }
     }
   }
   return inventory;
@@ -946,8 +951,7 @@ function explodeProjectile(p, index) {
       impactXToRecord = player2Tank.x - 250;
       updateImpact = true;
       console.log(
-        `🤖 Bot EMERGENCY ESCAPE: Close impact (${
-          p.type.name
+        `🤖 Bot EMERGENCY ESCAPE: Close impact (${p.type.name
         } at X:${p.x.toFixed(
           0
         )}). Setting correction target to X:${impactXToRecord.toFixed(0)}.`
@@ -1539,19 +1543,21 @@ function drawUI() {
     ctx.fillStyle = player1Tank.health > 0 ? "#FFD700" : "#FF1744";
     ctx.fillText(winner, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
-    ctx.font = "bold 28px 'Fredoka', sans-serif";
-    ctx.fillStyle = "#000";
-    ctx.fillText(
-      "Press R to Restart",
-      SCREEN_WIDTH / 2 + 2,
-      SCREEN_HEIGHT / 2 + 52
-    );
-    ctx.fillStyle = "#FFF";
-    ctx.fillText(
-      "Press R to Restart",
-      SCREEN_WIDTH / 2,
-      SCREEN_HEIGHT / 2 + 50
-    );
+    if (!isCampaignMode) {
+      ctx.font = "bold 28px 'Fredoka', sans-serif";
+      ctx.fillStyle = "#000";
+      ctx.fillText(
+        "Press R to Restart",
+        SCREEN_WIDTH / 2 + 2,
+        SCREEN_HEIGHT / 2 + 52
+      );
+      ctx.fillStyle = "#FFF";
+      ctx.fillText(
+        "Press R to Restart",
+        SCREEN_WIDTH / 2,
+        SCREEN_HEIGHT / 2 + 50
+      );
+    }
   }
 }
 
@@ -1573,8 +1579,8 @@ function initializeGame() {
   bot.turnCounter = 0;
 
   // Aseet nollataan ja arvotaan uudet
-  player1Tank.weapons = generateRandomInventory();
-  player2Tank.weapons = generateRandomInventory();
+  player1Tank.weapons = generateRandomInventory(isCampaignMode);
+  player2Tank.weapons = generateRandomInventory(isCampaignMode);
   player1Tank.selectedWeapon = ProjectileType.REGULAR;
   player2Tank.selectedWeapon = ProjectileType.REGULAR;
 }
