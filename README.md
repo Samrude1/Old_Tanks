@@ -1,4 +1,4 @@
-# 🎮 Tank Battle Cartoon! 💥
+# 🎮 Tank Battle 💥
 
 ![Version](https://img.shields.io/badge/version-1.2.0-blue.svg?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)
@@ -27,7 +27,7 @@
  /                   \|
 /                     \
 -----------------------
-  TANK BATTLE CARTOON
+  TANK BATTLE
 -----------------------
 ```
 
@@ -39,8 +39,7 @@
     - [Controls](#controls)
     - [User Interface](#user-interface)
     - [Game Modes](#game-modes)
-4. [The Story (Lore)](#-the-story-lore)
-5. [The Arsenal](#-the-arsenal)
+4. [The Arsenal](#-the-arsenal)
     - [Projectile Types](#projectile-types)
     - [Weapon Strategy](#weapon-strategy)
 6. [Advanced Combat Tactics](#-advanced-combat-tactics)
@@ -76,11 +75,11 @@
 
 ## 🚀 Introduction
 
-**Tank Battle Cartoon** is a high-fidelity recreation of the turn-based artillery genre, built entirely with modern Vanilla JavaScript and HTML5 Canvas. It captures the strategic depth of classics like *Scorched Earth* and *Worms* while delivering a polished, cartoon-style aesthetic accessible to players of all ages.
+**Tank Battle** is a high-fidelity recreation of the turn-based artillery genre, built entirely with modern Vanilla JavaScript and HTML5 Canvas. It captures the strategic depth of classics like *Scorched Earth* and *Worms* while delivering a polished aesthetic accessible to players of all ages.
 
 Unlike simple browser games, this project features a **sophisticated physics engine** with wind simulation, gravity, and pixel-perfect terrain destruction. The **AI opponents** are powered by a custom PID-controller-inspired learning algorithm, making them challenging adversaries that adapt to your playstyle.
 
-Whether you're looking for a quick match to test your aim or a full campaign to prove your strategic mastery, Tank Battle Cartoon delivers an engaging experience with zero dependencies or installation required.
+Whether you're looking for a quick match to test your aim or a full campaign to prove your strategic mastery, Tank Battle delivers an engaging experience with zero dependencies or installation required.
 
 ---
 
@@ -161,17 +160,7 @@ The ultimate challenge. Progress through 6 curated levels:
 
 ---
 
-## 📜 The Story (Lore)
 
-In the year 20XX, the **Great Candy Wars** decimated the globe. However, this isn't a dark, gritty future. It's a colorful, vibrant world where sentient tanks battle for supremacy over the remaining sugar stockpiles.
-
-The **Green Army (Player 1)** fights for the preservation of Mint Chocolate Chip, while the **Red Army (The Bot)** serves the tyrannical Red Licorice Empire.
-
-From the lush **Green Valleys** of the south, through the scorching **Caramel Deserts**, to the frozen peaks of the **Peppermint Mountains**, the war rages on. Only one tank commander can master the physics of war and claim the Golden Gobstopper.
-
-Will you be that commander?
-
----
 
 ## 💣 The Arsenal
 
