@@ -147,7 +147,7 @@ The ultimate challenge. Progress through 6 curated levels:
 
 ## 💣 The Arsenal
 
-Tank Battle Cartoon features **8 distinct weapon types**, each with unique physics properties and tactical uses.
+Tank Battle features **8 distinct weapon types**, each with unique physics properties and tactical uses.
 
 | Icon | Weapon Name | Ammo | Radius | Damage | Description & Strategy |
 | :---: | :--- | :---: | :---: | :---: | :--- |
@@ -428,7 +428,7 @@ Here is a complete breakdown of every file in the repository:
     *   Loads `style.css` and `script.js`.
 *   **`style.css`**
     *   Defines the visual look of the HTML UI (not the game graphics).
-    *   Uses the 'Fredoka One' font for that cartoon feel.
+    *   Uses the 'Fredoka One' font for that playful feel.
     *   Handles the layout of the Start Menu and buttons.
     *   Contains animations for the Victory Overlay popups.
 *   **`script.js`**
